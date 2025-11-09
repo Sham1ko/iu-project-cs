@@ -94,6 +94,22 @@ def generate_schedule():
     data_service = DataService(teachers_file=CURRENT_TEACHERS_FILE)
     scheduler = GeneticScheduler(data_service)
     
+    # Choose number of generations
+    gen_options = [50, 100, 150, 200, 300, 500]
+    print("Select number of generations:")
+    for idx, val in enumerate(gen_options, start=1):
+        mark = " (default)" if val == scheduler.GENERATIONS else ""
+        print(f"  {idx}. {val}{mark}")
+    print()
+    while True:
+        choice = input(f"Enter 1-{len(gen_options)} (or Enter to keep {scheduler.GENERATIONS}): ").strip()
+        if choice == "":
+            break
+        if choice.isdigit() and 1 <= int(choice) <= len(gen_options):
+            scheduler.GENERATIONS = gen_options[int(choice) - 1]
+            break
+        print("Invalid option. Please try again.")
+    
     print(f"Configuration:")
     print(f"  - Days per week: {len(scheduler.DAYS)}")
     print(f"  - Lessons per day: {scheduler.LESSONS_PER_DAY}")
