@@ -30,7 +30,8 @@ iu-project-cs/
 ├── services/
 │   ├── data_service.py          # Data service
 │   └── genetic_scheduler.py     # Genetic algorithm
-└── main.py               # Main application menu
+├── main.py               # Main application menu
+└── validate_data.py      # Data validation script
 ```
 
 ## Schedule Parameters
@@ -83,8 +84,9 @@ python main.py
 
 ```
 1. Generate new schedule (Genetic Algorithm) - Generate a new schedule
-2. Show data information - Display data information
-3. Exit - Exit the program
+2. Validate data (Check teacher availability) - Check if there are enough teachers
+3. Show data information - Display data information
+4. Exit - Exit the program
 ```
 
 ### Schedule Generation:
@@ -105,6 +107,29 @@ python main.py
 - Previous results are never overwritten
 - You can compare different generations
 - All files for a generation are stored together in its version folder
+
+### Data Validation:
+
+Before generating a schedule, you can validate your data:
+
+1. Select option "2" in the menu
+2. The validator will check:
+   - **Teachers per Subject** - How many teachers can teach each subject
+   - **Subject Coverage** - Whether all subjects have at least one teacher
+   - **Teacher Workload Analysis** - If teachers have capacity for all classes
+   - **Class Requirements** - Whether each class can get all subjects
+   - **Potential Conflicts** - Bottlenecks like single-teacher subjects
+
+The validation report will show:
+- ✓ Green checkmarks for passed checks
+- ⚠ Yellow warnings for potential issues
+- ✗ Red X marks for critical problems
+
+**When to run validation:**
+- Before your first schedule generation
+- After adding or removing teachers
+- After changing subject assignments
+- When schedules have poor fitness scores
 
 ### Output File Format:
 

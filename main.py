@@ -1,5 +1,6 @@
 from services.data_service import DataService
 from services.genetic_scheduler import GeneticScheduler, get_next_version_dir
+from validate_data import DataValidator
 
 
 def show_data_info():
@@ -31,6 +32,15 @@ def show_data_info():
     grade_7_classes = service.get_classes_by_grade(7)
     for cls in grade_7_classes:
         print(f"- {cls['name']}")
+
+
+def validate_data():
+    """Run data validation checks."""
+    try:
+        validator = DataValidator()
+        validator.validate_all()
+    except Exception as e:
+        print(f"Error during validation: {e}")
 
 
 def generate_schedule():
@@ -82,47 +92,42 @@ def generate_schedule():
 
 def main():
     """Main menu."""
-    print("\n" + "=" * 60)
-    print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
-    print("=" * 60)
-    print("\nOptions:")
-    print("  1. Generate new schedule (Genetic Algorithm)")
-    print("  2. Show data information")
-    print("  3. Exit")
-    print()
+    def print_menu():
+        print("\n" + "=" * 60)
+        print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
+        print("=" * 60)
+        print("\nOptions:")
+        print("  1. Generate new schedule (Genetic Algorithm)")
+        print("  2. Validate data (Check teacher availability)")
+        print("  3. Show data information")
+        print("  4. Exit")
+        print()
+    
+    print_menu()
     
     while True:
-        choice = input("Select option (1-3): ").strip()
+        choice = input("Select option (1-4): ").strip()
         
         if choice == "1":
             generate_schedule()
             print("\nPress Enter to return to menu...")
             input()
-            print("\n" + "=" * 60)
-            print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
-            print("=" * 60)
-            print("\nOptions:")
-            print("  1. Generate new schedule (Genetic Algorithm)")
-            print("  2. Show data information")
-            print("  3. Exit")
-            print()
+            print_menu()
         elif choice == "2":
+            validate_data()
+            print("\nPress Enter to return to menu...")
+            input()
+            print_menu()
+        elif choice == "3":
             show_data_info()
             print("\nPress Enter to return to menu...")
             input()
-            print("\n" + "=" * 60)
-            print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
-            print("=" * 60)
-            print("\nOptions:")
-            print("  1. Generate new schedule (Genetic Algorithm)")
-            print("  2. Show data information")
-            print("  3. Exit")
-            print()
-        elif choice == "3":
+            print_menu()
+        elif choice == "4":
             print("\nGoodbye!")
             break
         else:
-            print("Invalid option. Please select 1, 2, or 3.")
+            print("Invalid option. Please select 1, 2, 3, or 4.")
 
 
 if __name__ == "__main__":
