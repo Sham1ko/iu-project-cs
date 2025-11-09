@@ -5,6 +5,14 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from services.data_service import DataService
+from services.fitness_metrics import (
+    count_teacher_conflicts,
+    count_teacher_gaps,
+    count_class_gaps,
+    count_early_gaps,
+    calculate_daily_imbalance,
+    count_total_lessons,
+)
 
 
 def get_next_version_dir(base_dir: str = "data") -> Path:
@@ -115,152 +123,40 @@ class GeneticScheduler:
         score = 1000.0  # Start with perfect score
         
         # Hard constraint penalties
-        teacher_conflicts = self._count_teacher_conflicts(schedule)
+        teacher_conflicts = count_teacher_conflicts(
+            schedule, self.teachers_by_id, self.DAYS, self.LESSONS_PER_DAY
+        )
         score -= teacher_conflicts * 100  # Heavy penalty for teacher conflicts
         
         # Soft constraint penalties
-        teacher_gaps = self._count_teacher_gaps(schedule)
+        teacher_gaps = count_teacher_gaps(
+            schedule, self.teachers, self.DAYS, self.LESSONS_PER_DAY
+        )
         score -= teacher_gaps * 2  # Penalty for teacher gaps
         
-        class_gaps = self._count_class_gaps(schedule)
+        class_gaps = count_class_gaps(
+            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
+        )
         score -= class_gaps * 10  # Very strong penalty for gaps between lessons
         
-        early_gaps = self._count_early_gaps(schedule)
+        early_gaps = count_early_gaps(
+            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
+        )
         score -= early_gaps * 15  # Very strong penalty for empty slots before first lesson
         
-        imbalance = self._calculate_daily_imbalance(schedule)
+        imbalance = calculate_daily_imbalance(
+            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
+        )
         score -= imbalance * 1  # Penalty for uneven distribution
         
         # Bonus for having lessons
-        total_lessons = self._count_total_lessons(schedule)
+        total_lessons = count_total_lessons(
+            schedule, self.DAYS, self.LESSONS_PER_DAY
+        )
         score += total_lessons * 0.5  # Small bonus for each lesson
         
         return max(0, score)  # Ensure non-negative score
     
-    def _count_teacher_conflicts(self, schedule: Dict) -> int:
-        """Count how many times a teacher has to be in two places at once."""
-        conflicts = 0
-        
-        for day in self.DAYS:
-            for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                teacher_assignments = {}
-                
-                for class_id, assignment in schedule[day][lesson].items():
-                    if assignment is not None:
-                        teacher_id, subject_id = assignment
-                        
-                        # Check if teacher can teach this subject
-                        teacher = self.teachers_by_id[teacher_id]
-                        if subject_id not in teacher['subjects']:
-                            conflicts += 1  # Wrong subject for teacher
-                        
-                        # Check if teacher is already assigned
-                        if teacher_id in teacher_assignments:
-                            conflicts += 1  # Teacher conflict
-                        else:
-                            teacher_assignments[teacher_id] = class_id
-        
-        return conflicts
-    
-    def _count_teacher_gaps(self, schedule: Dict) -> int:
-        """Count gaps (free lessons between classes) in teacher schedules."""
-        gaps = 0
-        
-        for teacher in self.teachers:
-            teacher_id = teacher['id']
-            
-            for day in self.DAYS:
-                # Find all lessons for this teacher on this day
-                lessons_taught = []
-                for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                    for class_id, assignment in schedule[day][lesson].items():
-                        if assignment is not None and assignment[0] == teacher_id:
-                            lessons_taught.append(lesson)
-                            break
-                
-                # Count gaps
-                if len(lessons_taught) > 1:
-                    lessons_taught.sort()
-                    for i in range(len(lessons_taught) - 1):
-                        gap = lessons_taught[i + 1] - lessons_taught[i] - 1
-                        gaps += gap
-        
-        return gaps
-    
-    def _count_class_gaps(self, schedule: Dict) -> int:
-        """Count gaps (free lessons) in class schedules."""
-        gaps = 0
-        
-        for cls in self.classes:
-            class_id = cls['id']
-            
-            for day in self.DAYS:
-                # Find all lessons for this class on this day
-                lessons = []
-                for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                    if schedule[day][lesson].get(class_id) is not None:
-                        lessons.append(lesson)
-                
-                # Count gaps
-                if len(lessons) > 1:
-                    lessons.sort()
-                    for i in range(len(lessons) - 1):
-                        gap = lessons[i + 1] - lessons[i] - 1
-                        gaps += gap
-        
-        return gaps
-    
-    def _count_early_gaps(self, schedule: Dict) -> int:
-        """Count empty slots before the first lesson of the day for each class."""
-        early_gaps = 0
-        
-        for cls in self.classes:
-            class_id = cls['id']
-            
-            for day in self.DAYS:
-                # Find the first lesson for this class on this day
-                first_lesson = None
-                for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                    if schedule[day][lesson].get(class_id) is not None:
-                        first_lesson = lesson
-                        break
-                
-                # Count empty slots before the first lesson
-                if first_lesson is not None and first_lesson > 1:
-                    early_gaps += (first_lesson - 1)
-        
-        return early_gaps
-    
-    def _calculate_daily_imbalance(self, schedule: Dict) -> float:
-        """Calculate how unevenly lessons are distributed across days."""
-        imbalance = 0
-        
-        for cls in self.classes:
-            class_id = cls['id']
-            daily_counts = []
-            
-            for day in self.DAYS:
-                count = sum(1 for lesson in range(1, self.LESSONS_PER_DAY + 1)
-                           if schedule[day][lesson].get(class_id) is not None)
-                daily_counts.append(count)
-            
-            # Calculate standard deviation
-            if daily_counts:
-                mean = sum(daily_counts) / len(daily_counts)
-                variance = sum((x - mean) ** 2 for x in daily_counts) / len(daily_counts)
-                imbalance += variance ** 0.5
-        
-        return imbalance
-    
-    def _count_total_lessons(self, schedule: Dict) -> int:
-        """Count total number of lessons in the schedule."""
-        count = 0
-        for day in self.DAYS:
-            for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                for class_id, assignment in schedule[day][lesson].items():
-                    if assignment is not None:
-                        count += 1
-        return count
     
     def selection(self, population: List[Tuple[Dict, float]]) -> Dict:
         """Tournament selection: pick best from random sample."""
@@ -614,11 +510,21 @@ class GeneticScheduler:
     
     def _generate_statistics(self, schedule: Dict) -> Dict:
         """Generate statistics about the schedule."""
-        total_lessons = self._count_total_lessons(schedule)
-        teacher_conflicts = self._count_teacher_conflicts(schedule)
-        teacher_gaps = self._count_teacher_gaps(schedule)
-        class_gaps = self._count_class_gaps(schedule)
-        early_gaps = self._count_early_gaps(schedule)
+        total_lessons = count_total_lessons(
+            schedule, self.DAYS, self.LESSONS_PER_DAY
+        )
+        teacher_conflicts = count_teacher_conflicts(
+            schedule, self.teachers_by_id, self.DAYS, self.LESSONS_PER_DAY
+        )
+        teacher_gaps = count_teacher_gaps(
+            schedule, self.teachers, self.DAYS, self.LESSONS_PER_DAY
+        )
+        class_gaps = count_class_gaps(
+            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
+        )
+        early_gaps = count_early_gaps(
+            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
+        )
         
         return {
             "total_lessons": total_lessons,
