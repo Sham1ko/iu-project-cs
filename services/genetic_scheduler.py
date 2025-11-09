@@ -11,6 +11,7 @@ from services.fitness_metrics import (
     calculate_daily_imbalance,
     count_total_lessons,
 )
+from services.schedule_compaction import compact_mutation, compact_schedule_full
 
 
 def get_next_version_dir(base_dir: str = "data") -> Path:
@@ -187,7 +188,9 @@ class GeneticScheduler:
         
         # 60% chance to use compaction mutation (increased for better compactness)
         if random.random() < 0.6:
-            mutated = self._compact_mutation(mutated)
+            mutated = compact_mutation(
+                mutated, self.DAYS, self.LESSONS_PER_DAY, self.classes
+            )
         else:
             # Standard mutation: mutate a few random slots
             num_mutations = random.randint(1, 5)
@@ -210,179 +213,7 @@ class GeneticScheduler:
         
         return mutated
     
-    def _compact_mutation(self, schedule: Dict) -> Dict:
-        """
-        Compact mutation: shift lessons to the start of the day for random classes.
-        This helps eliminate empty slots before the first lesson and between lessons.
-        """
-        mutated = copy.deepcopy(schedule)
-        
-        # Apply to 2-5 random classes (increased for better coverage)
-        num_classes = random.randint(2, min(5, len(self.classes)))
-        selected_classes = random.sample(self.classes, num_classes)
-        
-        for cls in selected_classes:
-            class_id = cls['id']
-            
-            # Apply to 2-4 random days (increased for better coverage)
-            num_days = random.randint(2, min(4, len(self.DAYS)))
-            selected_days = random.sample(self.DAYS, num_days)
-            
-            for day in selected_days:
-                # Collect all lessons for this class on this day
-                lessons_data = []
-                for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                    assignment = mutated[day][lesson].get(class_id)
-                    if assignment is not None:
-                        lessons_data.append((lesson, assignment))
-                
-                # If there are lessons, try to shift them to start from lesson 1
-                if lessons_data:
-                    # Clear current slots
-                    for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                        mutated[day][lesson][class_id] = None
-                    
-                    # Check for teacher conflicts and place lessons starting from 1
-                    new_lesson = 1
-                    for original_lesson, assignment in lessons_data:
-                        teacher_id, subject_id = assignment
-                        
-                        # Find next available slot without teacher conflict
-                        placed = False
-                        for slot in range(new_lesson, self.LESSONS_PER_DAY + 1):
-                            # Check if teacher is already assigned in this slot
-                            teacher_busy = False
-                            for other_class_id, other_assignment in mutated[day][slot].items():
-                                if other_assignment is not None and other_assignment[0] == teacher_id:
-                                    teacher_busy = True
-                                    break
-                            
-                            if not teacher_busy:
-                                mutated[day][slot][class_id] = assignment
-                                new_lesson = slot + 1
-                                placed = True
-                                break
-                        
-                        # If couldn't place, put back in original slot
-                        if not placed:
-                            mutated[day][original_lesson][class_id] = assignment
-        
-        return mutated
     
-    def _compact_schedule_full(self, schedule: Dict) -> Dict:
-        """
-        Fully compact the schedule: remove all gaps for all classes on all days.
-        This is a post-processing step to ensure lessons start from lesson 1
-        and have no gaps between them.
-        Uses multiple passes to achieve better compaction.
-        """
-        compacted = copy.deepcopy(schedule)
-        
-        # Multiple passes to improve compaction
-        for pass_num in range(3):  # 3 passes for better results
-            improved = False
-            
-            for cls in self.classes:
-                class_id = cls['id']
-                
-                for day in self.DAYS:
-                    # Collect all lessons for this class on this day
-                    lessons_data = []
-                    for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                        assignment = compacted[day][lesson].get(class_id)
-                        if assignment is not None:
-                            lessons_data.append((lesson, assignment))
-                    
-                    # Skip if no lessons or already compact
-                    if not lessons_data:
-                        continue
-                    
-                    # Check if already compact
-                    lesson_numbers = [l for l, _ in lessons_data]
-                    expected_compact = list(range(1, len(lessons_data) + 1))
-                    if lesson_numbers == expected_compact:
-                        continue  # Already compact
-                    
-                    # Try to compact
-                    # Clear current slots
-                    for lesson in range(1, self.LESSONS_PER_DAY + 1):
-                        compacted[day][lesson][class_id] = None
-                    
-                    # Sort lessons by their original position to try maintaining order
-                    lessons_data.sort(key=lambda x: x[0])
-                    
-                    # Try multiple orderings to find best compaction
-                    best_placement = None
-                    min_last_slot = self.LESSONS_PER_DAY + 1
-                    
-                    # Try original order
-                    placement = self._try_compact_placement(compacted, day, class_id, lessons_data)
-                    if placement:
-                        last_slot = max(slot for slot, _ in placement)
-                        if last_slot < min_last_slot:
-                            min_last_slot = last_slot
-                            best_placement = placement
-                    
-                    # Try reversed order (sometimes helps with teacher conflicts)
-                    lessons_data_rev = lessons_data[::-1]
-                    placement = self._try_compact_placement(compacted, day, class_id, lessons_data_rev)
-                    if placement:
-                        last_slot = max(slot for slot, _ in placement)
-                        if last_slot < min_last_slot:
-                            min_last_slot = last_slot
-                            best_placement = placement
-                    
-                    # Apply best placement
-                    if best_placement:
-                        for slot, assignment in best_placement:
-                            compacted[day][slot][class_id] = assignment
-                            if slot < lesson_numbers[0]:
-                                improved = True
-                    else:
-                        # Restore original if no improvement possible
-                        for lesson, assignment in lessons_data:
-                            compacted[day][lesson][class_id] = assignment
-            
-            # If no improvements in this pass, we're done
-            if not improved:
-                break
-        
-        return compacted
-    
-    def _try_compact_placement(self, schedule: Dict, day: str, class_id: int, 
-                               lessons_data: List[Tuple[int, Tuple[int, int]]]) -> List[Tuple[int, Tuple[int, int]]]:
-        """
-        Try to place lessons compactly starting from slot 1.
-        Returns list of (slot, assignment) if successful, None otherwise.
-        """
-        placement = []
-        next_slot = 1
-        
-        for _, assignment in lessons_data:
-            teacher_id, subject_id = assignment
-            
-            # Find next available slot without teacher conflict
-            placed = False
-            for slot in range(next_slot, self.LESSONS_PER_DAY + 1):
-                # Check if teacher is already assigned in this slot
-                teacher_busy = False
-                for other_class_id, other_assignment in schedule[day][slot].items():
-                    if other_class_id != class_id and other_assignment is not None:
-                        if other_assignment[0] == teacher_id:
-                            teacher_busy = True
-                            break
-                
-                if not teacher_busy:
-                    placement.append((slot, assignment))
-                    next_slot = slot + 1
-                    placed = True
-                    break
-            
-            if not placed:
-                # Can't place all lessons compactly
-                return None
-        
-        return placement
     
     def generate_schedule(self, verbose: bool = True) -> Tuple[Dict, float, int]:
         """
@@ -453,7 +284,9 @@ class GeneticScheduler:
         if verbose:
             print(f"\nApplying final compaction to remove all gaps...")
         
-        best_schedule = self._compact_schedule_full(best_schedule)
+        best_schedule = compact_schedule_full(
+            best_schedule, self.DAYS, self.LESSONS_PER_DAY, self.classes
+        )
         best_fitness = self.calculate_fitness(best_schedule)
         
         if verbose:
