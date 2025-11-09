@@ -60,8 +60,8 @@ iu-project-cs/
 **Soft Constraints** (desirable):
 
 - Minimize gaps (empty lessons) for teachers
-- Minimize gaps for classes
-- Minimize empty slots before the first lesson of the day for classes
+- **Eliminate gaps for classes** - lessons must be consecutive without breaks
+- **Eliminate empty slots before the first lesson** - classes start from lesson 1
 - Even distribution of lessons across weekdays
 
 ### Genetic Operators:
@@ -70,8 +70,9 @@ iu-project-cs/
 - **Selection**: tournament selection (choosing the best from random samples)
 - **Crossover**: single-point exchange of days between schedules
 - **Mutation**:
-  - Standard mutation (70%): random modification of several lessons
-  - Compaction mutation (30%): shifts lessons to the start of the day to eliminate early gaps
+  - Standard mutation (40%): random modification of several lessons
+  - Compaction mutation (60%): shifts lessons to the start of the day to eliminate gaps
+- **Post-processing**: Final full compaction to ensure all classes have no gaps
 
 ## Usage
 
