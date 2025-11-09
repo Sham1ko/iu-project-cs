@@ -1,7 +1,9 @@
 from services.data_service import DataService
+from services.genetic_scheduler import GeneticScheduler
 
 
-def main():
+def show_data_info():
+    """Display information about available data."""
     service = DataService()
     
     print("=== Subjects ===")
@@ -29,6 +31,90 @@ def main():
     grade_7_classes = service.get_classes_by_grade(7)
     for cls in grade_7_classes:
         print(f"- {cls['name']}")
+
+
+def generate_schedule():
+    """Generate school schedule using genetic algorithm."""
+    print("=" * 60)
+    print("SCHOOL SCHEDULE GENERATOR - GENETIC ALGORITHM")
+    print("=" * 60)
+    print()
+    
+    # Initialize services
+    data_service = DataService()
+    scheduler = GeneticScheduler(data_service)
+    
+    print(f"Configuration:")
+    print(f"  - Days per week: {len(scheduler.DAYS)}")
+    print(f"  - Lessons per day: {scheduler.LESSONS_PER_DAY}")
+    print(f"  - Number of classes: {len(scheduler.classes)}")
+    print(f"  - Number of teachers: {len(scheduler.teachers)}")
+    print(f"  - Number of subjects: {len(scheduler.subjects)}")
+    print(f"\nGenetic Algorithm Parameters:")
+    print(f"  - Population size: {scheduler.POPULATION_SIZE}")
+    print(f"  - Generations: {scheduler.GENERATIONS}")
+    print(f"  - Mutation rate: {scheduler.MUTATION_RATE}")
+    print(f"  - Tournament size: {scheduler.TOURNAMENT_SIZE}")
+    print()
+    
+    # Generate schedule
+    print("Starting evolution...")
+    print("-" * 60)
+    best_schedule, fitness, generation = scheduler.generate_schedule(verbose=True)
+    print("-" * 60)
+    
+    # Export results
+    scheduler.export_schedule(best_schedule, fitness, generation)
+    scheduler.export_to_csv(best_schedule, fitness, generation)
+    
+    print("\n" + "=" * 60)
+    print("SCHEDULE GENERATION COMPLETE!")
+    print("=" * 60)
+
+
+def main():
+    """Main menu."""
+    print("\n" + "=" * 60)
+    print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
+    print("=" * 60)
+    print("\nOptions:")
+    print("  1. Generate new schedule (Genetic Algorithm)")
+    print("  2. Show data information")
+    print("  3. Exit")
+    print()
+    
+    while True:
+        choice = input("Select option (1-3): ").strip()
+        
+        if choice == "1":
+            generate_schedule()
+            print("\nPress Enter to return to menu...")
+            input()
+            print("\n" + "=" * 60)
+            print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
+            print("=" * 60)
+            print("\nOptions:")
+            print("  1. Generate new schedule (Genetic Algorithm)")
+            print("  2. Show data information")
+            print("  3. Exit")
+            print()
+        elif choice == "2":
+            show_data_info()
+            print("\nPress Enter to return to menu...")
+            input()
+            print("\n" + "=" * 60)
+            print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
+            print("=" * 60)
+            print("\nOptions:")
+            print("  1. Generate new schedule (Genetic Algorithm)")
+            print("  2. Show data information")
+            print("  3. Exit")
+            print()
+        elif choice == "3":
+            print("\nGoodbye!")
+            break
+        else:
+            print("Invalid option. Please select 1, 2, or 3.")
 
 
 if __name__ == "__main__":
