@@ -1,5 +1,6 @@
 from services.data_service import DataService
 from services.genetic_scheduler import GeneticScheduler, get_next_version_dir
+from services.schedule_exporter import export_schedule_json, export_to_csv
 from validate_data import DataValidator
 
 # Global variable for selected teachers file
@@ -118,10 +119,30 @@ def generate_schedule():
     print(f"\nSaving results to version: {version_name}")
     
     # Export results to versioned directory
-    scheduler.export_schedule(best_schedule, fitness, generation, 
-                             output_path=str(version_dir / "schedule.json"))
-    scheduler.export_to_csv(best_schedule, fitness, generation, 
-                           output_dir=str(version_dir))
+    export_schedule_json(
+        best_schedule,
+        fitness,
+        generation,
+        output_path=str(version_dir / "schedule.json"),
+        days=scheduler.DAYS,
+        lessons_per_day=scheduler.LESSONS_PER_DAY,
+        classes_by_id=scheduler.classes_by_id,
+        teachers_by_id=scheduler.teachers_by_id,
+        subjects_by_id=scheduler.subjects_by_id,
+        teachers=scheduler.teachers,
+        classes=scheduler.classes,
+    )
+    export_to_csv(
+        best_schedule,
+        output_dir=str(version_dir),
+        days=scheduler.DAYS,
+        lessons_per_day=scheduler.LESSONS_PER_DAY,
+        teachers=scheduler.teachers,
+        classes=scheduler.classes,
+        teachers_by_id=scheduler.teachers_by_id,
+        subjects_by_id=scheduler.subjects_by_id,
+        classes_by_id=scheduler.classes_by_id,
+    )
     
     print("\n" + "=" * 60)
     print("SCHEDULE GENERATION COMPLETE!")
