@@ -1,0 +1,119 @@
+{
+    "teachers": [
+        {
+            "id": 1,
+            "name": "John Doe",
+            "subjects": [
+                1
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Jane Doe",
+            "subjects": [
+                1
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Jim Doe",
+            "subjects": [
+                2,
+                3
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Janice Doe",
+            "subjects": [
+                2,
+                3
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Emily Watson",
+            "subjects": [
+                4
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Robert Mitchell",
+            "subjects": [
+                4
+            ]
+        },
+        {
+            "id": 7,
+            "name": "Lucas Anderson",
+            "subjects": [
+                5
+            ]
+        },
+        {
+            "id": 8,
+            "name": "Sophie Martin",
+            "subjects": [
+                6
+            ]
+        },
+        {
+            "id": 9,
+            "name": "Oliver Thompson",
+            "subjects": [
+                7
+            ]
+        },
+        {
+            "id": 10,
+            "name": "Isabella Garcia",
+            "subjects": [
+                8
+            ]
+        },
+        {
+            "id": 11,
+            "name": "William Davis",
+            "subjects": [
+                9,
+                10
+            ]
+        },
+        {
+            "id": 12,
+            "name": "Emma Johnson",
+            "subjects": [
+                11
+            ]
+        },
+        {
+            "id": 13,
+            "name": "James Wilson",
+            "subjects": [
+                12
+            ]
+        },
+        {
+            "id": 14,
+            "name": "Charlotte Brown",
+            "subjects": [
+                13
+            ]
+        },
+        {
+            "id": 15,
+            "name": "Benjamin Taylor",
+            "subjects": [
+                14
+            ]
+        },
+        {
+            "id": 16,
+            "name": "Amelia Clark",
+            "subjects": [
+                15
+            ]
+        }
+    ]
+}

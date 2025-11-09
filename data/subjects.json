@@ -1,0 +1,64 @@
+{
+    "subjects": [
+        {
+            "id": 1,
+            "name": "Math"
+        },
+        {
+            "id": 2,
+            "name": "Deutsch"
+        },
+        {
+            "id": 3,
+            "name": "Literature"
+        },
+        {
+            "id": 4,
+            "name": "English"
+        },
+        {
+            "id": 5,
+            "name": "Physics"
+        },
+        {
+            "id": 6,
+            "name": "Chemistry"
+        },
+        {
+            "id": 7,
+            "name": "Biology"
+        },
+        {
+            "id": 8,
+            "name": "Geography"
+        },
+        {
+            "id": 9,
+            "name": "History"
+        },
+        {
+            "id": 10,
+            "name": "Social Studies"
+        },
+        {
+            "id": 11,
+            "name": "Computer Science"
+        },
+        {
+            "id": 12,
+            "name": "Physical Education"
+        },
+        {
+            "id": 13,
+            "name": "Music"
+        },
+        {
+            "id": 14,
+            "name": "Art"
+        },
+        {
+            "id": 15,
+            "name": "Technology"
+        }
+    ]
+}
