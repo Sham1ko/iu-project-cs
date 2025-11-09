@@ -137,3 +137,27 @@ def count_total_lessons(
     return count
 
 
+def count_min_daily_lessons_deficit(
+    schedule: Dict,
+    classes: List[Dict[str, Any]],
+    days: List[str],
+    lessons_per_day: int,
+    min_lessons_per_day: int = 2,
+) -> int:
+    """
+    Count how many lessons are missing to reach min_lessons_per_day for each class and day.
+    Example: if a class has 0 lessons on a day and min=2 -> deficit 2.
+    """
+    deficit = 0
+    for cls in classes:
+        class_id = cls["id"]
+        for day in days:
+            day_count = 0
+            for lesson in range(1, lessons_per_day + 1):
+                if schedule[day][lesson].get(class_id) is not None:
+                    day_count += 1
+            if day_count < min_lessons_per_day:
+                deficit += (min_lessons_per_day - day_count)
+    return deficit
+
+
