@@ -15,23 +15,24 @@ The system uses a genetic algorithm to create an optimal class schedule based on
 ```
 iu-project-cs/
 ├── data/
-│   ├── classes.json      # Class data
-│   ├── teachers.json     # Teacher data
-│   ├── subjects.json     # Subject data
-│   ├── v1/              # First generation results
+│   ├── classes.json           # Class data
+│   ├── teachers.json          # Teacher data (basic set - 16 teachers)
+│   ├── teachers_extended.json # Teacher data (extended set - 28 teachers)
+│   ├── subjects.json          # Subject data
+│   ├── v1/                    # First generation results
 │   │   ├── schedule.json
 │   │   └── *.csv files
-│   ├── v2/              # Second generation results
+│   ├── v2/                    # Second generation results
 │   │   ├── schedule.json
 │   │   └── *.csv files
-│   └── v3/              # Third generation results (and so on...)
+│   └── v3/                    # Third generation results (and so on...)
 │       ├── schedule.json
 │       └── *.csv files
 ├── services/
 │   ├── data_service.py          # Data service
 │   └── genetic_scheduler.py     # Genetic algorithm
-├── main.py               # Main application menu
-└── validate_data.py      # Data validation script
+├── main.py                      # Main application menu
+└── validate_data.py             # Data validation script
 ```
 
 ## Schedule Parameters
@@ -85,9 +86,27 @@ python main.py
 ```
 1. Generate new schedule (Genetic Algorithm) - Generate a new schedule
 2. Validate data (Check teacher availability) - Check if there are enough teachers
-3. Show data information - Display data information
-4. Exit - Exit the program
+3. Select teachers file - Choose between basic or extended teacher set
+4. Show data information - Display data information
+5. Exit - Exit the program
 ```
+
+### Teacher Files:
+
+The system supports multiple teacher configurations:
+
+- **teachers.json** - Basic set (16 teachers)
+
+  - Some subjects have only one teacher
+  - Higher scheduling difficulty
+  - Useful for testing constraint handling
+
+- **teachers_extended.json** - Extended set (28 teachers)
+  - All subjects have at least 2 teachers
+  - Better workload distribution
+  - Recommended for production use
+
+You can switch between teacher files using option "3" in the menu.
 
 ### Schedule Generation:
 
@@ -121,11 +140,13 @@ Before generating a schedule, you can validate your data:
    - **Potential Conflicts** - Bottlenecks like single-teacher subjects
 
 The validation report will show:
+
 - ✓ Green checkmarks for passed checks
 - ⚠ Yellow warnings for potential issues
 - ✗ Red X marks for critical problems
 
 **When to run validation:**
+
 - Before your first schedule generation
 - After adding or removing teachers
 - After changing subject assignments

@@ -16,8 +16,9 @@ class DataValidator:
     LESSONS_PER_DAY = 6
     MAX_LESSONS_PER_WEEK = DAYS_PER_WEEK * LESSONS_PER_DAY
     
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = "data", teachers_file: str = "teachers.json"):
         self.data_dir = Path(data_dir)
+        self.teachers_file = teachers_file
         self.load_data()
     
     def load_data(self):
@@ -26,7 +27,7 @@ class DataValidator:
             data = json.load(f)
             self.classes = data['classes'] if 'classes' in data else data
         
-        with open(self.data_dir / "teachers.json", 'r', encoding='utf-8') as f:
+        with open(self.data_dir / self.teachers_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
             self.teachers = data['teachers'] if 'teachers' in data else data
         
@@ -44,6 +45,7 @@ class DataValidator:
         print("=" * 70)
         print("DATA VALIDATION REPORT")
         print("=" * 70)
+        print(f"Using teachers file: {self.teachers_file}")
         print()
         
         # Basic statistics

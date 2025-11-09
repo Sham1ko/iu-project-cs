@@ -6,8 +6,9 @@ from typing import List, Dict, Any
 class DataService:
     """Service for working with schedule data"""
     
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = "data", teachers_file: str = "teachers.json"):
         self.data_dir = Path(data_dir)
+        self.teachers_file = teachers_file
     
     def load_subjects(self) -> List[Dict[str, Any]]:
         """Load list of subjects"""
@@ -17,7 +18,7 @@ class DataService:
     
     def load_teachers(self) -> List[Dict[str, Any]]:
         """Load list of teachers"""
-        with open(self.data_dir / "teachers.json", "r", encoding="utf-8") as f:
+        with open(self.data_dir / self.teachers_file, "r", encoding="utf-8") as f:
             data = json.load(f)
             return data["teachers"]
     

@@ -2,10 +2,14 @@ from services.data_service import DataService
 from services.genetic_scheduler import GeneticScheduler, get_next_version_dir
 from validate_data import DataValidator
 
+# Global variable for selected teachers file
+CURRENT_TEACHERS_FILE = "teachers.json"
+
 
 def show_data_info():
     """Display information about available data."""
-    service = DataService()
+    global CURRENT_TEACHERS_FILE
+    service = DataService(teachers_file=CURRENT_TEACHERS_FILE)
     
     print("=== Subjects ===")
     subjects = service.load_subjects()
@@ -34,10 +38,43 @@ def show_data_info():
         print(f"- {cls['name']}")
 
 
+def select_teachers_file():
+    """Select which teachers file to use."""
+    global CURRENT_TEACHERS_FILE
+    
+    print("=" * 60)
+    print("SELECT TEACHERS FILE")
+    print("=" * 60)
+    print("\nAvailable teacher sets:")
+    print("  1. teachers.json - Basic set (16 teachers)")
+    print("  2. teachers_extended.json - Extended set (28 teachers)")
+    print()
+    print(f"Current: {CURRENT_TEACHERS_FILE}")
+    print()
+    
+    while True:
+        choice = input("Select option (1-2, or Enter to keep current): ").strip()
+        
+        if choice == "":
+            print(f"Keeping current: {CURRENT_TEACHERS_FILE}")
+            break
+        elif choice == "1":
+            CURRENT_TEACHERS_FILE = "teachers.json"
+            print(f"✓ Selected: {CURRENT_TEACHERS_FILE}")
+            break
+        elif choice == "2":
+            CURRENT_TEACHERS_FILE = "teachers_extended.json"
+            print(f"✓ Selected: {CURRENT_TEACHERS_FILE}")
+            break
+        else:
+            print("Invalid option. Please select 1 or 2.")
+
+
 def validate_data():
     """Run data validation checks."""
+    global CURRENT_TEACHERS_FILE
     try:
-        validator = DataValidator()
+        validator = DataValidator(teachers_file=CURRENT_TEACHERS_FILE)
         validator.validate_all()
     except Exception as e:
         print(f"Error during validation: {e}")
@@ -45,13 +82,15 @@ def validate_data():
 
 def generate_schedule():
     """Generate school schedule using genetic algorithm."""
+    global CURRENT_TEACHERS_FILE
     print("=" * 60)
     print("SCHOOL SCHEDULE GENERATOR - GENETIC ALGORITHM")
     print("=" * 60)
+    print(f"Using teachers file: {CURRENT_TEACHERS_FILE}")
     print()
     
     # Initialize services
-    data_service = DataService()
+    data_service = DataService(teachers_file=CURRENT_TEACHERS_FILE)
     scheduler = GeneticScheduler(data_service)
     
     print(f"Configuration:")
@@ -92,21 +131,25 @@ def generate_schedule():
 
 def main():
     """Main menu."""
+    global CURRENT_TEACHERS_FILE
+    
     def print_menu():
         print("\n" + "=" * 60)
         print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
         print("=" * 60)
+        print(f"Current teachers file: {CURRENT_TEACHERS_FILE}")
         print("\nOptions:")
         print("  1. Generate new schedule (Genetic Algorithm)")
         print("  2. Validate data (Check teacher availability)")
-        print("  3. Show data information")
-        print("  4. Exit")
+        print("  3. Select teachers file")
+        print("  4. Show data information")
+        print("  5. Exit")
         print()
     
     print_menu()
     
     while True:
-        choice = input("Select option (1-4): ").strip()
+        choice = input("Select option (1-5): ").strip()
         
         if choice == "1":
             generate_schedule()
@@ -119,15 +162,20 @@ def main():
             input()
             print_menu()
         elif choice == "3":
-            show_data_info()
+            select_teachers_file()
             print("\nPress Enter to return to menu...")
             input()
             print_menu()
         elif choice == "4":
+            show_data_info()
+            print("\nPress Enter to return to menu...")
+            input()
+            print_menu()
+        elif choice == "5":
             print("\nGoodbye!")
             break
         else:
-            print("Invalid option. Please select 1, 2, 3, or 4.")
+            print("Invalid option. Please select 1, 2, 3, 4, or 5.")
 
 
 if __name__ == "__main__":
