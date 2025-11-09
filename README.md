@@ -59,6 +59,7 @@ iu-project-cs/
 
 - Minimize gaps (empty lessons) for teachers
 - Minimize gaps for classes
+- Minimize empty slots before the first lesson of the day for classes
 - Even distribution of lessons across weekdays
 
 ### Genetic Operators:
@@ -66,7 +67,9 @@ iu-project-cs/
 - **Initialization**: random filling without teacher conflicts
 - **Selection**: tournament selection (choosing the best from random samples)
 - **Crossover**: single-point exchange of days between schedules
-- **Mutation**: random modification of several lessons
+- **Mutation**:
+  - Standard mutation (70%): random modification of several lessons
+  - Compaction mutation (30%): shifts lessons to the start of the day to eliminate early gaps
 
 ## Usage
 
@@ -126,7 +129,8 @@ python main.py
     "total_lessons": 180,
     "teacher_conflicts": 0,
     "teacher_gaps": 17,
-    "class_gaps": 13
+    "class_gaps": 13,
+    "early_gaps": 0
   }
 }
 ```
@@ -174,6 +178,7 @@ The system creates several CSV files for different views:
 - `teacher_conflicts` - number of teacher conflicts (should be 0!)
 - `teacher_gaps` - number of gaps for teachers
 - `class_gaps` - number of gaps for classes
+- `early_gaps` - number of empty slots before the first lesson of the day (should be 0!)
 
 ## Example Results
 
@@ -188,11 +193,13 @@ Statistics:
   - Teacher conflicts: 0 ✓
   - Teacher gaps: 17
   - Class gaps: 13
+  - Early gaps: 0 ✓
 ```
 
 This means:
 
 - No teacher conflicts (mandatory requirement met)
+- No empty slots before the first lesson of the day
 - Minimized gaps for teachers and classes
 - 180 lessons created for the week for all classes
 

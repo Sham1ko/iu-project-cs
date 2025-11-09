@@ -125,6 +125,9 @@ class GeneticScheduler:
         class_gaps = self._count_class_gaps(schedule)
         score -= class_gaps * 3  # Penalty for class gaps
         
+        early_gaps = self._count_early_gaps(schedule)
+        score -= early_gaps * 5  # Strong penalty for empty slots before first lesson
+        
         imbalance = self._calculate_daily_imbalance(schedule)
         score -= imbalance * 1  # Penalty for uneven distribution
         
@@ -207,6 +210,27 @@ class GeneticScheduler:
         
         return gaps
     
+    def _count_early_gaps(self, schedule: Dict) -> int:
+        """Count empty slots before the first lesson of the day for each class."""
+        early_gaps = 0
+        
+        for cls in self.classes:
+            class_id = cls['id']
+            
+            for day in self.DAYS:
+                # Find the first lesson for this class on this day
+                first_lesson = None
+                for lesson in range(1, self.LESSONS_PER_DAY + 1):
+                    if schedule[day][lesson].get(class_id) is not None:
+                        first_lesson = lesson
+                        break
+                
+                # Count empty slots before the first lesson
+                if first_lesson is not None and first_lesson > 1:
+                    early_gaps += (first_lesson - 1)
+        
+        return early_gaps
+    
     def _calculate_daily_imbalance(self, schedule: Dict) -> float:
         """Calculate how unevenly lessons are distributed across days."""
         imbalance = 0
@@ -263,27 +287,91 @@ class GeneticScheduler:
     def mutate(self, schedule: Dict) -> Dict:
         """
         Mutate schedule by randomly changing some lessons.
+        30% chance to use compaction mutation (shift lessons to start of day).
         """
         mutated = copy.deepcopy(schedule)
         
-        # Mutate a few random slots
-        num_mutations = random.randint(1, 5)
-        
-        for _ in range(num_mutations):
-            day = random.choice(self.DAYS)
-            lesson = random.randint(1, self.LESSONS_PER_DAY)
-            cls = random.choice(self.classes)
+        # 30% chance to use compaction mutation
+        if random.random() < 0.3:
+            mutated = self._compact_mutation(mutated)
+        else:
+            # Standard mutation: mutate a few random slots
+            num_mutations = random.randint(1, 5)
             
-            # 50% chance to remove lesson, 50% to add/change
-            if random.random() < 0.5:
-                mutated[day][lesson][cls['id']] = None
-            else:
-                subject = random.choice(self.subjects)
-                available_teachers = self.teachers_by_subject.get(subject['id'], [])
+            for _ in range(num_mutations):
+                day = random.choice(self.DAYS)
+                lesson = random.randint(1, self.LESSONS_PER_DAY)
+                cls = random.choice(self.classes)
                 
-                if available_teachers:
-                    teacher = random.choice(available_teachers)
-                    mutated[day][lesson][cls['id']] = (teacher['id'], subject['id'])
+                # 50% chance to remove lesson, 50% to add/change
+                if random.random() < 0.5:
+                    mutated[day][lesson][cls['id']] = None
+                else:
+                    subject = random.choice(self.subjects)
+                    available_teachers = self.teachers_by_subject.get(subject['id'], [])
+                    
+                    if available_teachers:
+                        teacher = random.choice(available_teachers)
+                        mutated[day][lesson][cls['id']] = (teacher['id'], subject['id'])
+        
+        return mutated
+    
+    def _compact_mutation(self, schedule: Dict) -> Dict:
+        """
+        Compact mutation: shift lessons to the start of the day for random classes.
+        This helps eliminate empty slots before the first lesson.
+        """
+        mutated = copy.deepcopy(schedule)
+        
+        # Apply to 1-3 random classes
+        num_classes = random.randint(1, min(3, len(self.classes)))
+        selected_classes = random.sample(self.classes, num_classes)
+        
+        for cls in selected_classes:
+            class_id = cls['id']
+            
+            # Apply to 1-2 random days
+            num_days = random.randint(1, min(2, len(self.DAYS)))
+            selected_days = random.sample(self.DAYS, num_days)
+            
+            for day in selected_days:
+                # Collect all lessons for this class on this day
+                lessons_data = []
+                for lesson in range(1, self.LESSONS_PER_DAY + 1):
+                    assignment = mutated[day][lesson].get(class_id)
+                    if assignment is not None:
+                        lessons_data.append((lesson, assignment))
+                
+                # If there are lessons, try to shift them to start from lesson 1
+                if lessons_data:
+                    # Clear current slots
+                    for lesson in range(1, self.LESSONS_PER_DAY + 1):
+                        mutated[day][lesson][class_id] = None
+                    
+                    # Check for teacher conflicts and place lessons starting from 1
+                    new_lesson = 1
+                    for original_lesson, assignment in lessons_data:
+                        teacher_id, subject_id = assignment
+                        
+                        # Find next available slot without teacher conflict
+                        placed = False
+                        for slot in range(new_lesson, self.LESSONS_PER_DAY + 1):
+                            # Check if teacher is already assigned in this slot
+                            teacher_busy = False
+                            for other_class_id, other_assignment in mutated[day][slot].items():
+                                if other_assignment is not None and other_assignment[0] == teacher_id:
+                                    teacher_busy = True
+                                    break
+                            
+                            if not teacher_busy:
+                                mutated[day][slot][class_id] = assignment
+                                new_lesson = slot + 1
+                                placed = True
+                                break
+                        
+                        # If couldn't place, put back in original slot
+                        if not placed:
+                            mutated[day][original_lesson][class_id] = assignment
         
         return mutated
     
@@ -408,12 +496,14 @@ class GeneticScheduler:
         teacher_conflicts = self._count_teacher_conflicts(schedule)
         teacher_gaps = self._count_teacher_gaps(schedule)
         class_gaps = self._count_class_gaps(schedule)
+        early_gaps = self._count_early_gaps(schedule)
         
         return {
             "total_lessons": total_lessons,
             "teacher_conflicts": teacher_conflicts,
             "teacher_gaps": teacher_gaps,
-            "class_gaps": class_gaps
+            "class_gaps": class_gaps,
+            "early_gaps": early_gaps
         }
     
     def export_to_csv(self, schedule: Dict, fitness: float, generation: int,

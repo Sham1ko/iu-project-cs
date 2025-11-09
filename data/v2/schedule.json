@@ -1,0 +1,1058 @@
+{
+  "schedule": {
+    "Monday": {
+      "1": {
+        "5A": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "5B": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "6A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "6B": {
+          "teacher": "Jim Doe",
+          "subject": "Literature"
+        },
+        "7A": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "7B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "8A": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "8B": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "9A": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "9B": null,
+        "10A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "11A": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        }
+      },
+      "2": {
+        "5A": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "5B": null,
+        "6A": null,
+        "6B": {
+          "teacher": "William Davis",
+          "subject": "History"
+        },
+        "7A": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "7B": null,
+        "8A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "8B": {
+          "teacher": "Jim Doe",
+          "subject": "Deutsch"
+        },
+        "9A": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "9B": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "10A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "11A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        }
+      },
+      "3": {
+        "5A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "5B": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "6A": null,
+        "6B": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "7A": null,
+        "7B": null,
+        "8A": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "8B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "9A": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "9B": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "10A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "11A": null
+      },
+      "4": {
+        "5A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "5B": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "6A": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "6B": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "7A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "7B": null,
+        "8A": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "8B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "9A": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "9B": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "10A": null,
+        "11A": null
+      },
+      "5": {
+        "5A": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "5B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "6A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "6B": null,
+        "7A": null,
+        "7B": null,
+        "8A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "8B": null,
+        "9A": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "9B": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "10A": null,
+        "11A": null
+      },
+      "6": {
+        "5A": null,
+        "5B": {
+          "teacher": "Emily Watson",
+          "subject": "English"
+        },
+        "6A": null,
+        "6B": null,
+        "7A": null,
+        "7B": null,
+        "8A": null,
+        "8B": null,
+        "9A": null,
+        "9B": null,
+        "10A": null,
+        "11A": null
+      }
+    },
+    "Tuesday": {
+      "1": {
+        "5A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "5B": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "6A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "6B": {
+          "teacher": "Jim Doe",
+          "subject": "Deutsch"
+        },
+        "7A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "7B": null,
+        "8A": null,
+        "8B": {
+          "teacher": "William Davis",
+          "subject": "History"
+        },
+        "9A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "9B": {
+          "teacher": "Emily Watson",
+          "subject": "English"
+        },
+        "10A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "11A": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        }
+      },
+      "2": {
+        "5A": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "5B": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "6A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "6B": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "7A": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        },
+        "7B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "8A": null,
+        "8B": null,
+        "9A": {
+          "teacher": "Jim Doe",
+          "subject": "Literature"
+        },
+        "9B": null,
+        "10A": null,
+        "11A": {
+          "teacher": "William Davis",
+          "subject": "History"
+        }
+      },
+      "3": {
+        "5A": null,
+        "5B": null,
+        "6A": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "6B": null,
+        "7A": {
+          "teacher": "Emily Watson",
+          "subject": "English"
+        },
+        "7B": null,
+        "8A": null,
+        "8B": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "9A": null,
+        "9B": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        },
+        "10A": null,
+        "11A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        }
+      },
+      "4": {
+        "5A": null,
+        "5B": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "6A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "6B": null,
+        "7A": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "7B": null,
+        "8A": null,
+        "8B": null,
+        "9A": null,
+        "9B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "10A": null,
+        "11A": null
+      },
+      "5": {
+        "5A": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "5B": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "6A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "6B": null,
+        "7A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "7B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "8A": null,
+        "8B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "9A": null,
+        "9B": null,
+        "10A": null,
+        "11A": null
+      },
+      "6": {
+        "5A": {
+          "teacher": "Benjamin Taylor",
+          "subject": "Art"
+        },
+        "5B": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "6A": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "6B": null,
+        "7A": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "7B": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "8A": null,
+        "8B": null,
+        "9A": null,
+        "9B": null,
+        "10A": null,
+        "11A": null
+      }
+    },
+    "Wednesday": {
+      "1": {
+        "5A": null,
+        "5B": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "6A": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "6B": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "7A": {
+          "teacher": "Benjamin Taylor",
+          "subject": "Art"
+        },
+        "7B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "8A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "8B": {
+          "teacher": "William Davis",
+          "subject": "History"
+        },
+        "9A": null,
+        "9B": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "10A": null,
+        "11A": null
+      },
+      "2": {
+        "5A": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "5B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "6A": null,
+        "6B": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "7A": null,
+        "7B": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "8A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "8B": null,
+        "9A": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "9B": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "10A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "11A": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        }
+      },
+      "3": {
+        "5A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "5B": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "6A": null,
+        "6B": null,
+        "7A": null,
+        "7B": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "8A": null,
+        "8B": null,
+        "9A": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "9B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "10A": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "11A": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        }
+      },
+      "4": {
+        "5A": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "5B": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "6A": null,
+        "6B": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "7A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "7B": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "8A": null,
+        "8B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "9A": {
+          "teacher": "Jim Doe",
+          "subject": "Literature"
+        },
+        "9B": {
+          "teacher": "Benjamin Taylor",
+          "subject": "Art"
+        },
+        "10A": {
+          "teacher": "William Davis",
+          "subject": "History"
+        },
+        "11A": null
+      },
+      "5": {
+        "5A": {
+          "teacher": "Jim Doe",
+          "subject": "Deutsch"
+        },
+        "5B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "6A": null,
+        "6B": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "7A": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "7B": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "8A": null,
+        "8B": null,
+        "9A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "9B": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "10A": null,
+        "11A": null
+      },
+      "6": {
+        "5A": null,
+        "5B": null,
+        "6A": null,
+        "6B": null,
+        "7A": {
+          "teacher": "Benjamin Taylor",
+          "subject": "Art"
+        },
+        "7B": null,
+        "8A": null,
+        "8B": null,
+        "9A": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "9B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "10A": null,
+        "11A": null
+      }
+    },
+    "Thursday": {
+      "1": {
+        "5A": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "5B": null,
+        "6A": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "6B": {
+          "teacher": "Jim Doe",
+          "subject": "Literature"
+        },
+        "7A": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "7B": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "8A": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "8B": {
+          "teacher": "William Davis",
+          "subject": "History"
+        },
+        "9A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "9B": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "10A": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "11A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        }
+      },
+      "2": {
+        "5A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "5B": null,
+        "6A": {
+          "teacher": "Jim Doe",
+          "subject": "Deutsch"
+        },
+        "6B": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "7A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "7B": null,
+        "8A": {
+          "teacher": "Emily Watson",
+          "subject": "English"
+        },
+        "8B": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "9A": null,
+        "9B": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "10A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "11A": {
+          "teacher": "William Davis",
+          "subject": "History"
+        }
+      },
+      "3": {
+        "5A": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        },
+        "5B": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "6A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "6B": null,
+        "7A": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "7B": null,
+        "8A": null,
+        "8B": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "9A": null,
+        "9B": null,
+        "10A": {
+          "teacher": "Benjamin Taylor",
+          "subject": "Art"
+        },
+        "11A": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        }
+      },
+      "4": {
+        "5A": {
+          "teacher": "Lucas Anderson",
+          "subject": "Physics"
+        },
+        "5B": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "6A": {
+          "teacher": "Jim Doe",
+          "subject": "Deutsch"
+        },
+        "6B": null,
+        "7A": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "7B": null,
+        "8A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "8B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "9A": null,
+        "9B": null,
+        "10A": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "11A": null
+      },
+      "5": {
+        "5A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "5B": null,
+        "6A": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "6B": null,
+        "7A": null,
+        "7B": null,
+        "8A": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        },
+        "8B": null,
+        "9A": null,
+        "9B": null,
+        "10A": null,
+        "11A": null
+      },
+      "6": {
+        "5A": null,
+        "5B": null,
+        "6A": null,
+        "6B": null,
+        "7A": null,
+        "7B": null,
+        "8A": null,
+        "8B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "9A": null,
+        "9B": null,
+        "10A": null,
+        "11A": null
+      }
+    },
+    "Friday": {
+      "1": {
+        "5A": null,
+        "5B": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        },
+        "6A": {
+          "teacher": "Emily Watson",
+          "subject": "English"
+        },
+        "6B": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "7A": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "7B": {
+          "teacher": "Oliver Thompson",
+          "subject": "Biology"
+        },
+        "8A": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "8B": null,
+        "9A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "9B": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "10A": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "11A": {
+          "teacher": "Jim Doe",
+          "subject": "Literature"
+        }
+      },
+      "2": {
+        "5A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "5B": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "6A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "6B": null,
+        "7A": null,
+        "7B": {
+          "teacher": "Benjamin Taylor",
+          "subject": "Art"
+        },
+        "8A": {
+          "teacher": "Emily Watson",
+          "subject": "English"
+        },
+        "8B": {
+          "teacher": "Robert Mitchell",
+          "subject": "English"
+        },
+        "9A": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "9B": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "10A": {
+          "teacher": "Jim Doe",
+          "subject": "Deutsch"
+        },
+        "11A": null
+      },
+      "3": {
+        "5A": {
+          "teacher": "Jim Doe",
+          "subject": "Deutsch"
+        },
+        "5B": {
+          "teacher": "Sophie Martin",
+          "subject": "Chemistry"
+        },
+        "6A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "6B": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "7A": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "7B": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "8A": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "8B": {
+          "teacher": "Emma Johnson",
+          "subject": "Computer Science"
+        },
+        "9A": null,
+        "9B": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "10A": null,
+        "11A": null
+      },
+      "4": {
+        "5A": {
+          "teacher": "William Davis",
+          "subject": "History"
+        },
+        "5B": {
+          "teacher": "Janice Doe",
+          "subject": "Deutsch"
+        },
+        "6A": {
+          "teacher": "Benjamin Taylor",
+          "subject": "Art"
+        },
+        "6B": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "7A": {
+          "teacher": "Isabella Garcia",
+          "subject": "Geography"
+        },
+        "7B": {
+          "teacher": "James Wilson",
+          "subject": "Physical Education"
+        },
+        "8A": {
+          "teacher": "Charlotte Brown",
+          "subject": "Music"
+        },
+        "8B": null,
+        "9A": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "9B": null,
+        "10A": null,
+        "11A": null
+      },
+      "5": {
+        "5A": {
+          "teacher": "Janice Doe",
+          "subject": "Literature"
+        },
+        "5B": null,
+        "6A": {
+          "teacher": "Amelia Clark",
+          "subject": "Technology"
+        },
+        "6B": null,
+        "7A": {
+          "teacher": "Jane Doe",
+          "subject": "Math"
+        },
+        "7B": {
+          "teacher": "William Davis",
+          "subject": "History"
+        },
+        "8A": null,
+        "8B": null,
+        "9A": null,
+        "9B": null,
+        "10A": null,
+        "11A": null
+      },
+      "6": {
+        "5A": {
+          "teacher": "John Doe",
+          "subject": "Math"
+        },
+        "5B": null,
+        "6A": null,
+        "6B": {
+          "teacher": "William Davis",
+          "subject": "Social Studies"
+        },
+        "7A": null,
+        "7B": null,
+        "8A": null,
+        "8B": null,
+        "9A": null,
+        "9B": null,
+        "10A": null,
+        "11A": null
+      }
+    }
+  },
+  "fitness_score": 912.63,
+  "generation": 180,
+  "statistics": {
+    "total_lessons": 205,
+    "teacher_conflicts": 0,
+    "teacher_gaps": 28,
+    "class_gaps": 23,
+    "early_gaps": 10
+  }
+}
