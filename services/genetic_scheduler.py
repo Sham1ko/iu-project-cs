@@ -7,6 +7,34 @@ from typing import List, Dict, Any, Tuple, Optional
 from services.data_service import DataService
 
 
+def get_next_version_dir(base_dir: str = "data") -> Path:
+    """
+    Find the next version directory (v1, v2, v3, ...).
+    Returns the path to the next version directory.
+    """
+    base_path = Path(base_dir)
+    base_path.mkdir(parents=True, exist_ok=True)
+    
+    # Find all existing version directories
+    version_dirs = [d for d in base_path.iterdir() if d.is_dir() and d.name.startswith('v')]
+    
+    if not version_dirs:
+        next_version = 1
+    else:
+        # Extract version numbers
+        versions = []
+        for d in version_dirs:
+            try:
+                version_num = int(d.name[1:])  # Remove 'v' prefix
+                versions.append(version_num)
+            except ValueError:
+                continue
+        
+        next_version = max(versions) + 1 if versions else 1
+    
+    return base_path / f"v{next_version}"
+
+
 class GeneticScheduler:
     """Genetic Algorithm for School Schedule Generation"""
     

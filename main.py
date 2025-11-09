@@ -1,5 +1,5 @@
 from services.data_service import DataService
-from services.genetic_scheduler import GeneticScheduler
+from services.genetic_scheduler import GeneticScheduler, get_next_version_dir
 
 
 def show_data_info():
@@ -63,12 +63,20 @@ def generate_schedule():
     best_schedule, fitness, generation = scheduler.generate_schedule(verbose=True)
     print("-" * 60)
     
-    # Export results
-    scheduler.export_schedule(best_schedule, fitness, generation)
-    scheduler.export_to_csv(best_schedule, fitness, generation)
+    # Determine next version directory
+    version_dir = get_next_version_dir("data")
+    version_name = version_dir.name
+    print(f"\nSaving results to version: {version_name}")
+    
+    # Export results to versioned directory
+    scheduler.export_schedule(best_schedule, fitness, generation, 
+                             output_path=str(version_dir / "schedule.json"))
+    scheduler.export_to_csv(best_schedule, fitness, generation, 
+                           output_dir=str(version_dir))
     
     print("\n" + "=" * 60)
     print("SCHEDULE GENERATION COMPLETE!")
+    print(f"Results saved to: {version_dir}")
     print("=" * 60)
 
 

@@ -1,0 +1,49 @@
+﻿Class,Lesson 1,Lesson 2,Lesson 3,Lesson 4,Lesson 5,Lesson 6
+5A,-,"Physical Education
+James Wilson","Literature
+Jim Doe","Literature
+Janice Doe","History
+William Davis","Deutsch
+Jim Doe"
+5B,-,"Art
+Benjamin Taylor","Music
+Charlotte Brown","Physical Education
+James Wilson","Computer Science
+Emma Johnson","Computer Science
+Emma Johnson"
+6A,"Biology
+Oliver Thompson","Music
+Charlotte Brown","Deutsch
+Janice Doe","Technology
+Amelia Clark","Technology
+Amelia Clark",-
+6B,-,-,"Chemistry
+Sophie Martin","Biology
+Oliver Thompson",-,-
+7A,-,-,"Biology
+Oliver Thompson","Chemistry
+Sophie Martin","English
+Robert Mitchell","Social Studies
+William Davis"
+7B,-,"Deutsch
+Janice Doe","Art
+Benjamin Taylor","Social Studies
+William Davis",-,-
+8A,-,-,"History
+William Davis",-,-,-
+8B,-,-,-,-,-,-
+9A,-,-,-,"Computer Science
+Emma Johnson","Literature
+Jim Doe",-
+9B,-,"Technology
+Amelia Clark",-,"Music
+Charlotte Brown",-,"Math
+John Doe"
+10A,"History
+William Davis","Math
+Jane Doe","Physical Education
+James Wilson","Literature
+Jim Doe",-,-
+11A,-,"Social Studies
+William Davis","Math
+Jane Doe",-,-,-

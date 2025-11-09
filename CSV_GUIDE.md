@@ -1,6 +1,8 @@
 # CSV Schedule Files Guide
 
-After schedule generation, the system creates several CSV files in the `data/` folder for convenient viewing and printing.
+After schedule generation, the system creates several CSV files in a versioned folder (e.g., `data/v1/`, `data/v2/`) for convenient viewing and printing.
+
+**Version Management:** Each generation creates a new version folder (v1, v2, v3...), so previous results are never overwritten. You can keep and compare multiple schedule versions.
 
 ## Generated Files
 
@@ -163,15 +165,27 @@ After schedule generation, the system creates several CSV files in the `data/` f
 
 ---
 
-## Updating the Schedule
+## Generating a New Schedule
 
-To create a new schedule:
+To create a new schedule version:
 
 ```bash
 python main.py
 ```
 
-Select option "1" - all CSV files will be overwritten with the new schedule.
+Select option "1" - the system will:
+
+1. Automatically detect existing versions (v1, v2, v3...)
+2. Create a new version folder with the next number
+3. Save all schedule files to the new version folder
+4. Keep all previous versions intact
+
+**Example:**
+
+- First generation → saved to `data/v1/`
+- Second generation → saved to `data/v2/`
+- Third generation → saved to `data/v3/`
+- And so on...
 
 ---
 
@@ -179,5 +193,7 @@ Select option "1" - all CSV files will be overwritten with the new schedule.
 
 - Empty cells (or "-") indicate a free lesson
 - Cell format with data: "Subject (Teacher)" or "Subject\nTeacher"
-- All files are updated simultaneously with each generation
+- All files for a generation are stored together in its version folder
+- Each new generation creates a separate version folder
 - CSV files can be manually edited, but changes do not affect the JSON
+- Previous versions are preserved and never overwritten

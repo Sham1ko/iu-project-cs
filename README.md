@@ -18,7 +18,15 @@ iu-project-cs/
 │   ├── classes.json      # Class data
 │   ├── teachers.json     # Teacher data
 │   ├── subjects.json     # Subject data
-│   └── schedule.json     # Generated schedule (created automatically)
+│   ├── v1/              # First generation results
+│   │   ├── schedule.json
+│   │   └── *.csv files
+│   ├── v2/              # Second generation results
+│   │   ├── schedule.json
+│   │   └── *.csv files
+│   └── v3/              # Third generation results (and so on...)
+│       ├── schedule.json
+│       └── *.csv files
 ├── services/
 │   ├── data_service.py          # Data service
 │   └── genetic_scheduler.py     # Genetic algorithm
@@ -83,10 +91,17 @@ python main.py
    - Create an initial population of 50 schedules
    - Evolve them over 200 generations
    - Select the best schedule
-   - Save the result to `data/schedule.json`
+   - Save the result to a new version folder (e.g., `data/v1/`, `data/v2/`, etc.)
    - Create CSV files for convenient viewing
 3. Progress will be displayed every 20 generations
 4. Upon completion, the final fitness score will be shown
+
+**Version Management:**
+
+- Each generation creates a new versioned folder (v1, v2, v3, ...)
+- Previous results are never overwritten
+- You can compare different generations
+- All files for a generation are stored together in its version folder
 
 ### Output File Format:
 
@@ -183,10 +198,10 @@ This means:
 
 ## Working with CSV Files
 
-After schedule generation, the system creates several CSV files for convenient viewing.
+After schedule generation, the system creates several CSV files in a versioned folder for convenient viewing.
 For a detailed guide on working with CSV files, see **[CSV_GUIDE.md](CSV_GUIDE.md)**
 
-Quick file list:
+Quick file list (in each version folder, e.g., `data/v1/`):
 
 - `schedule_full.csv` - full schedule (all classes × all days)
 - `schedule_monday.csv` ... `schedule_friday.csv` - schedules by day
@@ -194,6 +209,50 @@ Quick file list:
 - `schedule_teachers.csv` - teacher schedule
 
 All files can be opened in Excel or Google Sheets for viewing and printing.
+
+**Note:** Each generation creates a new version folder, so you can keep and compare multiple schedule versions.
+
+## Version Management
+
+The system automatically versions each schedule generation:
+
+### How It Works:
+
+1. **Automatic Detection**: The system scans the `data/` folder for existing version directories (v1, v2, v3...)
+2. **Next Version**: Automatically determines the next version number
+3. **New Folder**: Creates a new folder (e.g., `data/v4/`) for the current generation
+4. **All Files Saved**: Both JSON and all CSV files are saved to the version folder
+5. **Previous Versions Preserved**: Old schedules are never overwritten
+
+### Example Directory Structure:
+
+```
+data/
+├── classes.json
+├── teachers.json
+├── subjects.json
+├── v1/                    # First generation (Monday, 10:00 AM)
+│   ├── schedule.json
+│   ├── schedule_full.csv
+│   └── ... (all CSV files)
+├── v2/                    # Second generation (Monday, 2:30 PM)
+│   ├── schedule.json
+│   ├── schedule_full.csv
+│   └── ... (all CSV files)
+└── v3/                    # Third generation (Tuesday, 9:15 AM)
+    ├── schedule.json
+    ├── schedule_full.csv
+    └── ... (all CSV files)
+```
+
+### Benefits:
+
+- **Compare Results**: Keep multiple schedule versions and compare their fitness scores
+- **No Data Loss**: Previous schedules are never accidentally overwritten
+- **Easy Rollback**: If a new schedule isn't satisfactory, use a previous version
+- **Track Progress**: See how different algorithm runs perform over time
+
+For detailed information about the version management update, see **[CHANGELOG.md](CHANGELOG.md)**
 
 ## Requirements
 
