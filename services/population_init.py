@@ -84,9 +84,9 @@ def create_random_schedule(
         for day in days:
             # count current lessons for this class/day
             current_lessons = [
-                l
-                for l in range(1, lessons_per_day + 1)
-                if schedule[day][l].get(class_id) is not None
+                lesson_num
+                for lesson_num in range(1, lessons_per_day + 1)
+                if schedule[day][lesson_num].get(class_id) is not None
             ]
             missing = max(0, 2 - len(current_lessons))
             if missing <= 0:
