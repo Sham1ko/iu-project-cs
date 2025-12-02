@@ -53,50 +53,6 @@ def count_teacher_gaps(
     return gaps
 
 
-def count_class_gaps(
-    schedule: Dict,
-    classes: List[Dict[str, Any]],
-    days: List[str],
-    lessons_per_day: int,
-) -> int:
-    """Count gaps (free lessons) in class schedules."""
-    gaps = 0
-    for cls in classes:
-        class_id = cls["id"]
-        for day in days:
-            lessons: List[int] = []
-            for lesson in range(1, lessons_per_day + 1):
-                if schedule[day][lesson].get(class_id) is not None:
-                    lessons.append(lesson)
-            if len(lessons) > 1:
-                lessons.sort()
-                for i in range(len(lessons) - 1):
-                    gap = lessons[i + 1] - lessons[i] - 1
-                    gaps += gap
-    return gaps
-
-
-def count_early_gaps(
-    schedule: Dict,
-    classes: List[Dict[str, Any]],
-    days: List[str],
-    lessons_per_day: int,
-) -> int:
-    """Count empty slots before the first lesson of the day for each class."""
-    early_gaps = 0
-    for cls in classes:
-        class_id = cls["id"]
-        for day in days:
-            first_lesson = None
-            for lesson in range(1, lessons_per_day + 1):
-                if schedule[day][lesson].get(class_id) is not None:
-                    first_lesson = lesson
-                    break
-            if first_lesson is not None and first_lesson > 1:
-                early_gaps += first_lesson - 1
-    return early_gaps
-
-
 def calculate_daily_imbalance(
     schedule: Dict,
     classes: List[Dict[str, Any]],
@@ -187,12 +143,6 @@ def calculate_schedule_fitness(
     # Soft constraint penalties
     teacher_gaps = count_teacher_gaps(schedule, teachers, days, lessons_per_day)
     score -= teacher_gaps * 2  # Penalty for teacher gaps
-
-    class_gaps = count_class_gaps(schedule, classes, days, lessons_per_day)
-    score -= class_gaps * 10  # Very strong penalty for gaps between lessons
-
-    early_gaps = count_early_gaps(schedule, classes, days, lessons_per_day)
-    score -= early_gaps * 15  # Very strong penalty for empty slots before first lesson
 
     imbalance = calculate_daily_imbalance(schedule, classes, days, lessons_per_day)
     score -= imbalance * 1  # Penalty for uneven distribution

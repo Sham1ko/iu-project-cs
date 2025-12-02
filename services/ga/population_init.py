@@ -36,53 +36,51 @@ def create_random_schedule(
     lessons_per_day: int,
 ) -> Dict[str, Dict[int, Dict[Any, Optional[Tuple[Any, Any]]]]]:
     """
-    Create a random schedule (chromosome).
+    Create a random schedule (chromosome) with contiguous lessons per class/day.
     Structure: {day: {lesson: {class_id: (teacher_id, subject_id) or None}}}
-    This version avoids teacher conflicts during initialization.
     """
     schedule: Dict[str, Dict[int, Dict[Any, Optional[Tuple[Any, Any]]]]] = {}
+    assigned_teachers: Dict[str, Dict[int, set[int]]] = {}
 
     for day in days:
         schedule[day] = {}
+        assigned_teachers[day] = {}
         for lesson in range(1, lessons_per_day + 1):
             schedule[day][lesson] = {}
-
-            # Track which teachers are already assigned in this time slot
-            assigned_teachers = set()
-
+            assigned_teachers[day][lesson] = set()
             for cls in classes:
-                # Randomly decide if this slot has a lesson (70% chance)
-                if random.random() < 0.7:
-                    # Pick a random subject
-                    subject = random.choice(subjects)
-                    # Get teachers who can teach this subject
-                    available_teachers = teachers_by_subject.get(subject["id"], [])
+                schedule[day][lesson][cls["id"]] = None
 
-                    # Filter out teachers who are already assigned in this slot
-                    free_teachers = [
-                        t
-                        for t in available_teachers
-                        if t["id"] not in assigned_teachers
-                    ]
-
-                    if free_teachers:
-                        teacher = random.choice(free_teachers)
-                        schedule[day][lesson][cls["id"]] = (
-                            teacher["id"],
-                            subject["id"],
-                        )
-                        assigned_teachers.add(teacher["id"])
-                    else:
-                        # No available teacher, leave slot empty
-                        schedule[day][lesson][cls["id"]] = None
-                else:
-                    schedule[day][lesson][cls["id"]] = None
-
-    # Bias: ensure at least 2 lessons per day per class where possible
     for cls in classes:
         class_id = cls["id"]
         for day in days:
-            # count current lessons for this class/day
+            desired_lessons = sum(
+                1 for _ in range(lessons_per_day) if random.random() < 0.7
+            )
+            desired_lessons = min(desired_lessons, lessons_per_day)
+            slot = 1
+            placed = 0
+
+            while placed < desired_lessons and slot <= lessons_per_day:
+                assignment = _assign_compact_lesson(
+                    day,
+                    slot,
+                    subjects,
+                    teachers_by_subject,
+                    assigned_teachers,
+                )
+
+                if assignment is None:
+                    break
+
+                schedule[day][slot][class_id] = assignment
+                assigned_teachers[day][slot].add(assignment[0])
+                placed += 1
+                slot += 1
+
+    for cls in classes:
+        class_id = cls["id"]
+        for day in days:
             current_lessons = [
                 lesson_num
                 for lesson_num in range(1, lessons_per_day + 1)
@@ -91,30 +89,59 @@ def create_random_schedule(
             missing = max(0, 2 - len(current_lessons))
             if missing <= 0:
                 continue
-            # Try to add up to 'missing' lessons in free/feasible slots
-            tries = 0
-            while missing > 0 and tries < lessons_per_day * 2:
-                tries += 1
-                slot = random.randint(1, lessons_per_day)
-                if schedule[day][slot].get(class_id) is not None:
-                    continue  # already has lesson
-                # pick a random subject
-                subject = random.choice(subjects)
-                available_teachers = teachers_by_subject.get(subject["id"], [])
-                # find teacher not already assigned in this slot
-                teacher_in_slot = {
-                    tup[0]
-                    for tup in [
-                        v for v in schedule[day][slot].values() if v is not None
-                    ]
-                }
-                free_teachers = [
-                    t for t in available_teachers if t["id"] not in teacher_in_slot
-                ]
-                if not free_teachers:
+
+            next_slot = len(current_lessons) + 1
+            while missing > 0 and next_slot <= lessons_per_day:
+                if schedule[day][next_slot].get(class_id) is not None:
+                    next_slot += 1
                     continue
-                teacher = random.choice(free_teachers)
-                schedule[day][slot][class_id] = (teacher["id"], subject["id"])
+
+                assignment = _assign_compact_lesson(
+                    day,
+                    next_slot,
+                    subjects,
+                    teachers_by_subject,
+                    assigned_teachers,
+                )
+
+                if assignment is None:
+                    break
+
+                schedule[day][next_slot][class_id] = assignment
+                assigned_teachers[day][next_slot].add(assignment[0])
                 missing -= 1
+                next_slot += 1
 
     return schedule
+
+
+def _assign_compact_lesson(
+    day: str,
+    lesson: int,
+    subjects: List[Dict[str, Any]],
+    teachers_by_subject: Dict[Any, List[Dict[str, Any]]],
+    assigned_teachers: Dict[str, Dict[int, set[int]]],
+) -> Optional[Tuple[Any, Any]]:
+    """
+    Try to place a lesson at the specific day/lesson ensuring no teacher conflicts.
+    """
+    shuffled_subjects = subjects[:]
+    random.shuffle(shuffled_subjects)
+
+    for subject in shuffled_subjects:
+        available_teachers = teachers_by_subject.get(subject["id"], [])
+        if not available_teachers:
+            continue
+
+        free_teachers = [
+            t
+            for t in available_teachers
+            if t["id"] not in assigned_teachers[day][lesson]
+        ]
+        if not free_teachers:
+            continue
+
+        teacher = random.choice(free_teachers)
+        return teacher["id"], subject["id"]
+
+    return None
