@@ -211,7 +211,7 @@ class GeneticScheduler:
 
         # Post-processing: Fully compact the best schedule
         if verbose:
-            print(f"\nApplying final compaction to remove all gaps...")
+            print("\nApplying final compaction to remove all gaps...")
 
         best_schedule = compact_schedule_full(
             best_schedule, self.DAYS, self.LESSONS_PER_DAY, self.classes
@@ -219,7 +219,7 @@ class GeneticScheduler:
         best_fitness = self.calculate_fitness(best_schedule)
 
         if verbose:
-            print(f"\nEvolution complete!")
+            print("\nEvolution complete!")
             print(f"Best fitness (after compaction): {best_fitness:.2f}")
             print(f"Found at generation: {best_generation}")
 

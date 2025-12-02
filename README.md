@@ -308,6 +308,35 @@ data/
 
 For detailed information about the version management update, see **[CHANGELOG.md](CHANGELOG.md)**
 
+## FastAPI Web Interface (Hello World)
+
+To try the lightweight FastAPI server (returns `Hello, World!` at `/`):
+
+1. **Create a virtual environment**
+   ```bash
+   python -m venv .venv
+   ```
+2. **Activate it (Windows PowerShell)**
+   ```bash
+   .\.venv\Scripts\activate
+   ```
+   *(Use `source .venv/bin/activate` on Linux/macOS.)*
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Run the server**
+   ```bash
+   uvicorn web.app:app --reload
+   # или
+   python -m uvicorn web.app:app --reload
+   # или
+   fastapi dev web/app.py
+   ```
+5. **Open the browser** at <http://127.0.0.1:8000/> — you should see `Hello, World!`
+
+When finished, deactivate the virtualenv with `deactivate`.
+
 ## Requirements
 
 - Python 3.8+
