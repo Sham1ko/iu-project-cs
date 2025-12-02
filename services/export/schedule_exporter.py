@@ -1,12 +1,13 @@
-import json
 import csv
+import json
 from pathlib import Path
-from typing import Dict, List, Any
-from services.fitness_metrics import (
-    count_teacher_conflicts,
-    count_teacher_gaps,
+from typing import Any, Dict, List
+
+from services.ga.fitness_metrics import (
     count_class_gaps,
     count_early_gaps,
+    count_teacher_conflicts,
+    count_teacher_gaps,
     count_total_lessons,
 )
 
@@ -23,15 +24,9 @@ def _generate_statistics(
     teacher_conflicts = count_teacher_conflicts(
         schedule, teachers_by_id, days, lessons_per_day
     )
-    teacher_gaps = count_teacher_gaps(
-        schedule, teachers, days, lessons_per_day
-    )
-    class_gaps = count_class_gaps(
-        schedule, classes, days, lessons_per_day
-    )
-    early_gaps = count_early_gaps(
-        schedule, classes, days, lessons_per_day
-    )
+    teacher_gaps = count_teacher_gaps(schedule, teachers, days, lessons_per_day)
+    class_gaps = count_class_gaps(schedule, classes, days, lessons_per_day)
+    early_gaps = count_early_gaps(schedule, classes, days, lessons_per_day)
     return {
         "total_lessons": total_lessons,
         "teacher_conflicts": teacher_conflicts,
@@ -82,11 +77,11 @@ def export_schedule_json(
                     }
                 else:
                     output["schedule"][day][str(lesson)][class_name] = None
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path_obj, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
-    print(f"\nSchedule saved to: {output_path}")
+    print(f"\nSchedule saved to: {output_path_obj}")
 
 
 def export_to_csv(
@@ -153,10 +148,10 @@ def export_to_csv(
     )
 
     print(f"\nCSV files saved to: {output_path}/")
-    print(f"  - schedule_full.csv (complete overview)")
-    print(f"  - schedule_monday.csv to schedule_friday.csv (daily)")
-    print(f"  - schedule_class_*.csv (per class)")
-    print(f"  - schedule_teachers.csv (teacher schedules)")
+    print("  - schedule_full.csv (complete overview)")
+    print("  - schedule_monday.csv to schedule_friday.csv (daily)")
+    print("  - schedule_class_*.csv (per class)")
+    print("  - schedule_teachers.csv (teacher schedules)")
 
 
 def _export_full_schedule_csv(
@@ -280,5 +275,3 @@ def _export_teacher_schedule_csv(
                             break
                     row.append(teaching if teaching else "")
             writer.writerow(row)
-
-

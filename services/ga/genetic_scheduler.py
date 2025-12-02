@@ -1,10 +1,11 @@
 import copy
 import random
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
-from services.data_service import DataService
-from services.fitness_metrics import (
+from services.io.data_service import DataService
+
+from .fitness_metrics import (
     calculate_daily_imbalance,
     count_class_gaps,
     count_early_gaps,
@@ -13,8 +14,8 @@ from services.fitness_metrics import (
     count_teacher_gaps,
     count_total_lessons,
 )
-from services.population_init import initialize_population
-from services.schedule_compaction import compact_mutation, compact_schedule_full
+from .population_init import initialize_population
+from .schedule_compaction import compact_mutation, compact_schedule_full
 
 
 def get_next_version_dir(base_dir: str = "data") -> Path:

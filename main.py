@@ -1,6 +1,6 @@
-from services.data_service import DataService
-from services.genetic_scheduler import GeneticScheduler, get_next_version_dir
-from services.schedule_exporter import export_schedule_json, export_to_csv
+from services.export.schedule_exporter import export_schedule_json, export_to_csv
+from services.ga.genetic_scheduler import GeneticScheduler, get_next_version_dir
+from services.io.data_service import DataService
 from validate_data import DataValidator
 
 # Global variable for selected teachers file
@@ -11,28 +11,32 @@ def show_data_info():
     """Display information about available data."""
     global CURRENT_TEACHERS_FILE
     service = DataService(teachers_file=CURRENT_TEACHERS_FILE)
-    
+
     print("=== Subjects ===")
     subjects = service.load_subjects()
     for subject in subjects:
         print(f"{subject['id']}: {subject['name']}")
-    
+
     print("\n=== Teachers ===")
     teachers = service.load_teachers()
     for teacher in teachers:
-        subjects_names = [service.get_subject_by_id(sid)['name'] for sid in teacher['subjects']]
-        print(f"{teacher['id']}: {teacher['name']} - Subjects: {', '.join(subjects_names)}")
-    
+        subjects_names = [
+            service.get_subject_by_id(sid)["name"] for sid in teacher["subjects"]
+        ]
+        print(
+            f"{teacher['id']}: {teacher['name']} - Subjects: {', '.join(subjects_names)}"
+        )
+
     print("\n=== Classes ===")
     classes = service.load_classes()
     for cls in classes:
         print(f"{cls['id']}: {cls['name']} ({cls['grade']} grade)")
-    
+
     print("\n=== Math Teachers ===")
     math_teachers = service.get_teachers_by_subject(1)
     for teacher in math_teachers:
         print(f"- {teacher['name']}")
-    
+
     print("\n=== 7th Grade Classes ===")
     grade_7_classes = service.get_classes_by_grade(7)
     for cls in grade_7_classes:
@@ -42,7 +46,7 @@ def show_data_info():
 def select_teachers_file():
     """Select which teachers file to use."""
     global CURRENT_TEACHERS_FILE
-    
+
     print("=" * 60)
     print("SELECT TEACHERS FILE")
     print("=" * 60)
@@ -52,10 +56,10 @@ def select_teachers_file():
     print()
     print(f"Current: {CURRENT_TEACHERS_FILE}")
     print()
-    
+
     while True:
         choice = input("Select option (1-2, or Enter to keep current): ").strip()
-        
+
         if choice == "":
             print(f"Keeping current: {CURRENT_TEACHERS_FILE}")
             break
@@ -89,11 +93,11 @@ def generate_schedule():
     print("=" * 60)
     print(f"Using teachers file: {CURRENT_TEACHERS_FILE}")
     print()
-    
+
     # Initialize services
     data_service = DataService(teachers_file=CURRENT_TEACHERS_FILE)
     scheduler = GeneticScheduler(data_service)
-    
+
     # Choose number of generations
     gen_options = [50, 100, 150, 200, 300, 500]
     print("Select number of generations:")
@@ -102,14 +106,16 @@ def generate_schedule():
         print(f"  {idx}. {val}{mark}")
     print()
     while True:
-        choice = input(f"Enter 1-{len(gen_options)} (or Enter to keep {scheduler.GENERATIONS}): ").strip()
+        choice = input(
+            f"Enter 1-{len(gen_options)} (or Enter to keep {scheduler.GENERATIONS}): "
+        ).strip()
         if choice == "":
             break
         if choice.isdigit() and 1 <= int(choice) <= len(gen_options):
             scheduler.GENERATIONS = gen_options[int(choice) - 1]
             break
         print("Invalid option. Please try again.")
-    
+
     print(f"Configuration:")
     print(f"  - Days per week: {len(scheduler.DAYS)}")
     print(f"  - Lessons per day: {scheduler.LESSONS_PER_DAY}")
@@ -122,18 +128,18 @@ def generate_schedule():
     print(f"  - Mutation rate: {scheduler.MUTATION_RATE}")
     print(f"  - Tournament size: {scheduler.TOURNAMENT_SIZE}")
     print()
-    
+
     # Generate schedule
     print("Starting evolution...")
     print("-" * 60)
     best_schedule, fitness, generation = scheduler.generate_schedule(verbose=True)
     print("-" * 60)
-    
+
     # Determine next version directory
     version_dir = get_next_version_dir("data")
     version_name = version_dir.name
     print(f"\nSaving results to version: {version_name}")
-    
+
     # Export results to versioned directory
     export_schedule_json(
         best_schedule,
@@ -159,7 +165,7 @@ def generate_schedule():
         subjects_by_id=scheduler.subjects_by_id,
         classes_by_id=scheduler.classes_by_id,
     )
-    
+
     print("\n" + "=" * 60)
     print("SCHEDULE GENERATION COMPLETE!")
     print(f"Results saved to: {version_dir}")
@@ -169,7 +175,7 @@ def generate_schedule():
 def main():
     """Main menu."""
     global CURRENT_TEACHERS_FILE
-    
+
     def print_menu():
         print("\n" + "=" * 60)
         print("SCHOOL SCHEDULE MANAGEMENT SYSTEM")
@@ -182,12 +188,12 @@ def main():
         print("  4. Show data information")
         print("  5. Exit")
         print()
-    
+
     print_menu()
-    
+
     while True:
         choice = input("Select option (1-5): ").strip()
-        
+
         if choice == "1":
             generate_schedule()
             print("\nPress Enter to return to menu...")
@@ -217,4 +223,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
