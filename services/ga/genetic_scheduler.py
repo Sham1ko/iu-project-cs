@@ -5,15 +5,7 @@ from typing import Dict, List, Tuple
 
 from services.io.data_service import DataService
 
-from .fitness_metrics import (
-    calculate_daily_imbalance,
-    count_class_gaps,
-    count_early_gaps,
-    count_min_daily_lessons_deficit,
-    count_teacher_conflicts,
-    count_teacher_gaps,
-    count_total_lessons,
-)
+from .fitness_metrics import calculate_schedule_fitness
 from .population_init import initialize_population
 from .schedule_compaction import compact_mutation, compact_schedule_full
 
@@ -80,59 +72,14 @@ class GeneticScheduler:
             ]
 
     def calculate_fitness(self, schedule: Dict) -> float:
-        """
-        Calculate fitness score for a schedule.
-        Higher score = better schedule.
-        Score is reduced by penalties for constraint violations.
-        """
-        score = 1000.0  # Start with perfect score
-
-        # Hard constraint penalties
-        teacher_conflicts = count_teacher_conflicts(
-            schedule, self.teachers_by_id, self.DAYS, self.LESSONS_PER_DAY
-        )
-        score -= teacher_conflicts * 100  # Heavy penalty for teacher conflicts
-
-        # Soft constraint penalties
-        teacher_gaps = count_teacher_gaps(
-            schedule, self.teachers, self.DAYS, self.LESSONS_PER_DAY
-        )
-        score -= teacher_gaps * 2  # Penalty for teacher gaps
-
-        class_gaps = count_class_gaps(
-            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
-        )
-        score -= class_gaps * 10  # Very strong penalty for gaps between lessons
-
-        early_gaps = count_early_gaps(
-            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
-        )
-        score -= (
-            early_gaps * 15
-        )  # Very strong penalty for empty slots before first lesson
-
-        imbalance = calculate_daily_imbalance(
-            schedule, self.classes, self.DAYS, self.LESSONS_PER_DAY
-        )
-        score -= imbalance * 1  # Penalty for uneven distribution
-
-        # Bonus for having lessons
-        total_lessons = count_total_lessons(schedule, self.DAYS, self.LESSONS_PER_DAY)
-        score += total_lessons * 0.5  # Small bonus for each lesson
-
-        # Hard-ish constraint: minimum 2 lessons per day for each class
-        min_daily_deficit = count_min_daily_lessons_deficit(
+        return calculate_schedule_fitness(
             schedule,
-            self.classes,
-            self.DAYS,
-            self.LESSONS_PER_DAY,
-            min_lessons_per_day=2,
+            days=self.DAYS,
+            lessons_per_day=self.LESSONS_PER_DAY,
+            teachers=self.teachers,
+            classes=self.classes,
+            teachers_by_id=self.teachers_by_id,
         )
-        score -= (
-            min_daily_deficit * 80
-        )  # Heavy penalty per missing lesson toward minimum
-
-        return max(0, score)  # Ensure non-negative score
 
     def selection(self, population: List[Tuple[Dict, float]]) -> Dict:
         """Tournament selection: pick best from random sample."""

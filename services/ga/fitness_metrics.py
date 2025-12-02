@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List
 
 
 def count_teacher_conflicts(
@@ -93,7 +93,7 @@ def count_early_gaps(
                     first_lesson = lesson
                     break
             if first_lesson is not None and first_lesson > 1:
-                early_gaps += (first_lesson - 1)
+                early_gaps += first_lesson - 1
     return early_gaps
 
 
@@ -118,7 +118,7 @@ def calculate_daily_imbalance(
         if daily_counts:
             mean = sum(daily_counts) / len(daily_counts)
             variance = sum((x - mean) ** 2 for x in daily_counts) / len(daily_counts)
-            imbalance += variance ** 0.5
+            imbalance += variance**0.5
     return imbalance
 
 
@@ -157,7 +157,58 @@ def count_min_daily_lessons_deficit(
                 if schedule[day][lesson].get(class_id) is not None:
                     day_count += 1
             if day_count < min_lessons_per_day:
-                deficit += (min_lessons_per_day - day_count)
+                deficit += min_lessons_per_day - day_count
     return deficit
 
 
+def calculate_schedule_fitness(
+    schedule: Dict,
+    *,
+    days: List[str],
+    lessons_per_day: int,
+    teachers: List[Dict[str, Any]],
+    classes: List[Dict[str, Any]],
+    teachers_by_id: Dict[int, Dict[str, Any]],
+    min_lessons_per_day: int = 2,
+) -> float:
+    """
+    Calculate fitness score for a schedule.
+    Higher score = better schedule.
+    Score is reduced by penalties for constraint violations.
+    """
+    score = 1000.0  # Start with perfect score
+
+    # Hard constraint penalties
+    teacher_conflicts = count_teacher_conflicts(
+        schedule, teachers_by_id, days, lessons_per_day
+    )
+    score -= teacher_conflicts * 100  # Heavy penalty for teacher conflicts
+
+    # Soft constraint penalties
+    teacher_gaps = count_teacher_gaps(schedule, teachers, days, lessons_per_day)
+    score -= teacher_gaps * 2  # Penalty for teacher gaps
+
+    class_gaps = count_class_gaps(schedule, classes, days, lessons_per_day)
+    score -= class_gaps * 10  # Very strong penalty for gaps between lessons
+
+    early_gaps = count_early_gaps(schedule, classes, days, lessons_per_day)
+    score -= early_gaps * 15  # Very strong penalty for empty slots before first lesson
+
+    imbalance = calculate_daily_imbalance(schedule, classes, days, lessons_per_day)
+    score -= imbalance * 1  # Penalty for uneven distribution
+
+    # Bonus for having lessons
+    total_lessons = count_total_lessons(schedule, days, lessons_per_day)
+    score += total_lessons * 0.5  # Small bonus for each lesson
+
+    # Hard-ish constraint: minimum lessons per day for each class
+    min_daily_deficit = count_min_daily_lessons_deficit(
+        schedule,
+        classes,
+        days,
+        lessons_per_day,
+        min_lessons_per_day=min_lessons_per_day,
+    )
+    score -= min_daily_deficit * 80  # Heavy penalty per missing lesson toward minimum
+
+    return max(0, score)  # Ensure non-negative score
