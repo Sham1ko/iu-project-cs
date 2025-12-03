@@ -1,3 +1,4 @@
+from services.export.pdf_exporter import export_schedule_pdf
 from services.export.schedule_exporter import export_schedule_json, export_to_csv
 from services.ga.genetic_scheduler import GeneticScheduler, get_next_version_dir
 from services.io.data_service import DataService
@@ -164,6 +165,17 @@ def generate_schedule():
         teachers_by_id=scheduler.teachers_by_id,
         subjects_by_id=scheduler.subjects_by_id,
         classes_by_id=scheduler.classes_by_id,
+    )
+    export_schedule_pdf(
+        best_schedule,
+        output_dir=str(version_dir),
+        days=scheduler.DAYS,
+        lessons_per_day=scheduler.LESSONS_PER_DAY,
+        classes=scheduler.classes,
+        classes_by_id=scheduler.classes_by_id,
+        teachers_by_id=scheduler.teachers_by_id,
+        subjects_by_id=scheduler.subjects_by_id,
+        title=f"Schedule - {version_name}",
     )
 
     print("\n" + "=" * 60)

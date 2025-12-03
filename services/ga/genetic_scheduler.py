@@ -213,10 +213,15 @@ class GeneticScheduler:
         if verbose:
             print("\nApplying final compaction to remove all gaps...")
 
-        best_schedule = compact_schedule_full(
-            best_schedule, self.DAYS, self.LESSONS_PER_DAY, self.classes
-        )
-        best_fitness = self.calculate_fitness(best_schedule)
+        # Fix: Ensure best_schedule is not None before passing to compact_schedule_full
+        if best_schedule is not None:
+            best_schedule = compact_schedule_full(
+                best_schedule, self.DAYS, self.LESSONS_PER_DAY, self.classes
+            )
+            best_fitness = self.calculate_fitness(best_schedule)
+        else:
+            best_schedule = {}
+            best_fitness = 0.0
 
         if verbose:
             print("\nEvolution complete!")

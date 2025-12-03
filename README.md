@@ -327,11 +327,11 @@ To try the lightweight FastAPI server (returns `Hello, World!` at `/`):
    ```
 4. **Run the server**
    ```bash
-   uvicorn web.app:app --reload
+   uvicorn web.backend.app:app --reload
    # или
-   python -m uvicorn web.app:app --reload
+   python -m uvicorn web.backend.app:app --reload
    # или
-   fastapi dev web/app.py
+   fastapi dev web/backend/app.py
    ```
 5. **Open the browser** at <http://127.0.0.1:8000/> — you should see `Hello, World!`
 

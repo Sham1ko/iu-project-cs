@@ -4,8 +4,6 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from services.ga.fitness_metrics import (
-    count_class_gaps,
-    count_early_gaps,
     count_teacher_conflicts,
     count_teacher_gaps,
     count_total_lessons,
@@ -25,14 +23,10 @@ def _generate_statistics(
         schedule, teachers_by_id, days, lessons_per_day
     )
     teacher_gaps = count_teacher_gaps(schedule, teachers, days, lessons_per_day)
-    class_gaps = count_class_gaps(schedule, classes, days, lessons_per_day)
-    early_gaps = count_early_gaps(schedule, classes, days, lessons_per_day)
     return {
         "total_lessons": total_lessons,
         "teacher_conflicts": teacher_conflicts,
         "teacher_gaps": teacher_gaps,
-        "class_gaps": class_gaps,
-        "early_gaps": early_gaps,
     }
 
 
