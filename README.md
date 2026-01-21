@@ -1,237 +1,74 @@
-# School Schedule Generator with Genetic Algorithm
+# IU Project - Timetable Generator
 
-Automatic generation of school schedules using a genetic algorithm.
+A full stack timetable generator based on a genetic algorithm (GA).
 
-## Description
+This repo contains:
 
-The system uses a genetic algorithm to create an optimal class schedule based on data about:
+- `core/` - GA engine and data loaders
+- `backend/` - FastAPI API + SQLModel + Postgres
+- `frontend/` - React UI (Vite + TypeScript)
+- `data/` - sample input data and generated schedules
+- `docs/` - simple documentation (architecture, logic, deployment)
 
-- Classes (12 classes: 5A-11A)
-- Teachers (16 teachers)
-- Subjects (15 subjects)
+## Quick start (local)
 
-## Project Structure
+Prereqs: Python 3.11+, Node 18+, Docker.
 
-```
-iu-project-cs/
-├── data/
-│   ├── classes.json           # Class data
-│   ├── teachers.json          # Teacher data (basic set - 16 teachers)
-│   ├── teachers_extended.json # Teacher data (extended set - 28 teachers)
-│   ├── subjects.json          # Subject data
-│   ├── v1/                    # First generation results
-│   │   ├── schedule.json
-│   │   └── *.csv files
-│   ├── v2/                    # Second generation results
-│   │   ├── schedule.json
-│   │   └── *.csv files
-│   └── v3/                    # Third generation results (and so on...)
-│       ├── schedule.json
-│       └── *.csv files
-├── core/
-│   ├── io/data_service.py       # Data service
-│   ├── ga/genetic_scheduler.py  # Genetic algorithm
-│   └── export/                  # Export helpers (CSV/PDF/JSON)
-├── core/main.py                 # Main application menu
-└── validate_data.py             # Data validation script
-```
-
-## Schedule Parameters
-
-- **5 days** per week (Monday - Friday)
-- **6 lessons** per day
-- **12 classes** (5A, 5B, 6A, 6B, 7A, 7B, 8A, 8B, 9A, 9B, 10A, 11A)
-
-## Genetic Algorithm
-
-### Parameters:
-
-- Population size: 50
-- Number of generations: 200
-- Mutation probability: 0.1
-- Tournament size: 5
-
-### Constraints:
-
-**Hard Constraints** (mandatory):
-
-- A teacher cannot teach two lessons simultaneously
-- A teacher can only teach their assigned subjects
-
-**Soft Constraints** (desirable):
-
-- Minimize gaps (empty lessons) for teachers
-- **Eliminate gaps for classes** - lessons must be consecutive without breaks
-- **Eliminate empty slots before the first lesson** - classes start from lesson 1
-- Even distribution of lessons across weekdays
-
-### Genetic Operators:
-
-- **Initialization**: random filling without teacher conflicts
-- **Selection**: tournament selection (choosing the best from random samples)
-- **Crossover**: single-point exchange of days between schedules
-- **Mutation**:
-  - Standard mutation (40%): random modification of several lessons
-  - Compaction mutation (60%): shifts lessons to the start of the day to eliminate gaps
-- **Post-processing**: Final full compaction to ensure all classes have no gaps
-
-## Usage
-
-### Running the program:
-
-```bash
-python -m core.main
-```
-
-### Menu:
+1. Start Postgres
 
 ```
-1. Generate new schedule (Genetic Algorithm) - Generate a new schedule
-2. Validate data (Check teacher availability) - Check if there are enough teachers
-3. Select teachers file - Choose between basic or extended teacher set
-4. Show data information - Display data information
-5. Exit - Exit the program
-```
-
-### Teacher Files:
-
-The system supports multiple teacher configurations:
-
-- **teachers.json** - Basic set (16 teachers)
-
-  - Some subjects have only one teacher
-  - Higher scheduling difficulty
-  - Useful for testing constraint handling
-
-- **teachers_extended.json** - Extended set (28 teachers)
-  - All subjects have at least 2 teachers
-  - Better workload distribution
-  - Recommended for production use
-
-You can switch between teacher files using option "3" in the menu.
-
-### Schedule Generation:
-
-1. Select option "1" in the menu
-2. The algorithm will automatically:
-   - Create an initial population of 50 schedules
-   - Evolve them over 200 generations
-   - Select the best schedule
-   - Save the result to a new version folder (e.g., `data/v1/`, `data/v2/`, etc.)
-   - Create CSV files for convenient viewing
-3. Progress will be displayed every 20 generations
-4. Upon completion, the final fitness score will be shown
-
-**Version Management:**
-
-- Each generation creates a new versioned folder (v1, v2, v3, ...)
-- Previous results are never overwritten
-- You can compare different generations
-- All files for a generation are stored together in its version folder
-
-### Data Validation:
-
-Before generating a schedule, you can validate your data:
-
-1. Select option "2" in the menu
-2. The validator will check:
-   - **Teachers per Subject** - How many teachers can teach each subject
-   - **Subject Coverage** - Whether all subjects have at least one teacher
-   - **Teacher Workload Analysis** - If teachers have capacity for all classes
-   - **Class Requirements** - Whether each class can get all subjects
-   - **Potential Conflicts** - Bottlenecks like single-teacher subjects
-
-The validation report will show:
-
-- ✓ Green checkmarks for passed checks
-- ⚠ Yellow warnings for potential issues
-- ✗ Red X marks for critical problems
-
-**When to run validation:**
-
-- Before your first schedule generation
-- After adding or removing teachers
-- After changing subject assignments
-- When schedules have poor fitness scores
-
-### Output File Format:
-
-#### JSON file (`schedule.json`):
-
-```json
-{
-  "schedule": {
-    "Monday": {
-      "1": {
-        "5A": {"teacher": "John Doe", "subject": "Math"},
-        "5B": null,
-        ...
-      },
-      ...
-    },
-    ...
-  },
-  "fitness_score": 1001.76,
-  "generation": 185,
-  "statistics": {
-    "total_lessons": 180,
-    "teacher_conflicts": 0,
-    "teacher_gaps": 17,
-    "class_gaps": 13,
-    "early_gaps": 0
-  }
-}
-```
-
-#### CSV files (for viewing in Excel/Google Sheets):
-
-The system creates several CSV files for different views:
-
-1. **`schedule_full.csv`** - Full schedule
-
-   - Rows: all classes
-   - Columns: all lessons of all days (Mon 1, Mon 2, ..., Fri 6)
-   - Cells: Subject (Teacher)
-
-2. **`schedule_monday.csv` to `schedule_friday.csv`** - By day
-
-   - Rows: all classes
-   - Columns: lessons of the day (Lesson 1 - Lesson 6)
-   - Convenient for printing daily schedules
-
-## Backend API (FastAPI + Postgres)
-
-### Start Postgres
-
-```bash
 cd backend
 docker compose up -d
 ```
 
-### Configure Environment
+2. Run backend
 
-```bash
-cd backend
-cp .env.example .env
-# edit DATABASE_URL if needed
 ```
-
-### Database Init (SQLModel)
-
-Tables are created automatically on application startup using `SQLModel.metadata.create_all`.
-
-### Run API
-
-```bash
 cd backend
+python -m venv .venv
+# Windows PowerShell: .\.venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-On startup, the API seeds a default Dataset from `data/*.json` if the table is empty.
+3. Run frontend
 
-### Quick Curl Check
+```
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
 
-```bash
+Open http://localhost:5173
+
+## Environment variables
+
+Backend (`backend/.env`):
+
+- `DATABASE_URL` (preferred)
+- or `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD`
+- `DATA_DIR` (path to `data/`)
+
+Frontend (`frontend/.env`):
+
+- `VITE_API_BASE_URL` (example: `http://localhost:8000`)
+
+## API endpoints
+
+- `POST /api/v1/timetables/generate`
+- `GET  /api/v1/timetables/runs/{run_id}`
+- `GET  /api/v1/timetables/runs/{run_id}/result`
+- `GET/POST/PUT /api/v1/datasets`
+
+On startup, the backend seeds a default Dataset from `data/*.json` if the datasets
+table is empty.
+
+## Manual check (curl)
+
+```
 # create dataset
 curl -s -X POST http://localhost:8000/api/v1/datasets \
   -H "Content-Type: application/json" \
@@ -249,172 +86,17 @@ curl -s http://localhost:8000/api/v1/timetables/runs/1
 curl -s http://localhost:8000/api/v1/timetables/runs/1/result
 ```
 
-## Frontend (React + Vite)
-
-### Setup
-
-```bash
-cd frontend
-cp .env.example .env
-# set VITE_API_BASE_URL if backend is not on localhost:8000
-```
-
-### Install & Run
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open <http://localhost:5173>. The dev server proxies `/api` to `VITE_API_BASE_URL`
-when it is an absolute URL, so you can call `/api/v1/...` without CORS issues.
-
-
-3. **`schedule_class_*.csv`** - For each class
-
-   - Rows: lesson numbers (Lesson 1 - Lesson 6)
-   - Columns: weekdays
-   - Convenient for distributing schedules to classes
-
-4. **`schedule_teachers.csv`** - Teacher schedule
-   - Rows: all teachers
-   - Columns: all lessons of all days
-   - Cells: Subject (Class)
-   - Convenient for planning teacher workload
-
-## Interpreting Results
-
-### Fitness Score:
-
-- **> 1000** - excellent schedule
-- **900-1000** - good schedule with minimal drawbacks
-- **700-900** - acceptable schedule
-- **< 700** - improvement needed
-
-### Statistics:
-
-- `total_lessons` - total number of lessons in the schedule
-- `teacher_conflicts` - number of teacher conflicts (should be 0!)
-- `teacher_gaps` - number of gaps for teachers
-- `class_gaps` - number of gaps for classes
-- `early_gaps` - number of empty slots before the first lesson of the day (should be 0!)
-
-## Example Results
-
-Typical algorithm output:
+## Optional: run core GA directly
 
 ```
-Best fitness: 1001.76
-Found at generation: 185
-
-Statistics:
-  - Total lessons: 180
-  - Teacher conflicts: 0 ✓
-  - Teacher gaps: 17
-  - Class gaps: 13
-  - Early gaps: 0 ✓
+python -m core.main
 ```
 
-This means:
+## Docs
 
-- No teacher conflicts (mandatory requirement met)
-- No empty slots before the first lesson of the day
-- Minimized gaps for teachers and classes
-- 180 lessons created for the week for all classes
-
-## Working with CSV Files
-
-After schedule generation, the system creates several CSV files in a versioned folder for convenient viewing.
-For a detailed guide on working with CSV files, see **[CSV_GUIDE.md](CSV_GUIDE.md)**
-
-Quick file list (in each version folder, e.g., `data/v1/`):
-
-- `schedule_full.csv` - full schedule (all classes × all days)
-- `schedule_monday.csv` ... `schedule_friday.csv` - schedules by day
-- `schedule_class_5A.csv` ... `schedule_class_11A.csv` - schedules by class
-- `schedule_teachers.csv` - teacher schedule
-
-All files can be opened in Excel or Google Sheets for viewing and printing.
-
-**Note:** Each generation creates a new version folder, so you can keep and compare multiple schedule versions.
-
-## Version Management
-
-The system automatically versions each schedule generation:
-
-### How It Works:
-
-1. **Automatic Detection**: The system scans the `data/` folder for existing version directories (v1, v2, v3...)
-2. **Next Version**: Automatically determines the next version number
-3. **New Folder**: Creates a new folder (e.g., `data/v4/`) for the current generation
-4. **All Files Saved**: Both JSON and all CSV files are saved to the version folder
-5. **Previous Versions Preserved**: Old schedules are never overwritten
-
-### Example Directory Structure:
-
-```
-data/
-├── classes.json
-├── teachers.json
-├── subjects.json
-├── v1/                    # First generation (Monday, 10:00 AM)
-│   ├── schedule.json
-│   ├── schedule_full.csv
-│   └── ... (all CSV files)
-├── v2/                    # Second generation (Monday, 2:30 PM)
-│   ├── schedule.json
-│   ├── schedule_full.csv
-│   └── ... (all CSV files)
-└── v3/                    # Third generation (Tuesday, 9:15 AM)
-    ├── schedule.json
-    ├── schedule_full.csv
-    └── ... (all CSV files)
-```
-
-### Benefits:
-
-- **Compare Results**: Keep multiple schedule versions and compare their fitness scores
-- **No Data Loss**: Previous schedules are never accidentally overwritten
-- **Easy Rollback**: If a new schedule isn't satisfactory, use a previous version
-- **Track Progress**: See how different algorithm runs perform over time
-
-For detailed information about the version management update, see **[CHANGELOG.md](CHANGELOG.md)**
-
-## FastAPI Web Interface (Hello World)
-
-To try the lightweight FastAPI server (returns `Hello, World!` at `/`):
-
-1. **Create a virtual environment**
-   ```bash
-   python -m venv .venv
-   ```
-2. **Activate it (Windows PowerShell)**
-   ```bash
-   .\.venv\Scripts\activate
-   ```
-   *(Use `source .venv/bin/activate` on Linux/macOS.)*
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. **Run the server**
-   ```bash
-   uvicorn web.backend.app:app --reload
-   # или
-   python -m uvicorn web.backend.app:app --reload
-   # или
-   fastapi dev web/backend/app.py
-   ```
-5. **Open the browser** at <http://127.0.0.1:8000/> — you should see `Hello, World!`
-
-When finished, deactivate the virtualenv with `deactivate`.
-
-## Requirements
-
-- Python 3.8+
-- Standard Python libraries (json, random, copy, csv, pathlib, typing)
-
-## Authors
-
-Project developed for managing school class schedules.
+- `docs/architecture.md`
+- `docs/backend.md`
+- `docs/frontend.md`
+- `docs/core.md`
+- `docs/logic.md`
+- `docs/deployment.md`
