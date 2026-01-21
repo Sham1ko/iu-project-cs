@@ -249,6 +249,27 @@ curl -s http://localhost:8000/api/v1/timetables/runs/1
 curl -s http://localhost:8000/api/v1/timetables/runs/1/result
 ```
 
+## Frontend (React + Vite)
+
+### Setup
+
+```bash
+cd frontend
+cp .env.example .env
+# set VITE_API_BASE_URL if backend is not on localhost:8000
+```
+
+### Install & Run
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open <http://localhost:5173>. The dev server proxies `/api` to `VITE_API_BASE_URL`
+when it is an absolute URL, so you can call `/api/v1/...` without CORS issues.
+
 
 3. **`schedule_class_*.csv`** - For each class
 
