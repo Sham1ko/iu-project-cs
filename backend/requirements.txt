@@ -10,7 +10,9 @@ idna==3.11
 psycopg==3.3.2
 psycopg-binary==3.3.2
 pydantic==2.12.5
+pydantic-settings==2.11.0
 pydantic_core==2.41.5
+python-dotenv==1.1.1
 SQLAlchemy==2.0.45
 sqlmodel==0.0.31
 starlette==0.50.0

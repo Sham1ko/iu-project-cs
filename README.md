@@ -199,6 +199,57 @@ The system creates several CSV files for different views:
    - Columns: lessons of the day (Lesson 1 - Lesson 6)
    - Convenient for printing daily schedules
 
+## Backend API (FastAPI + Postgres)
+
+### Start Postgres
+
+```bash
+cd backend
+docker compose up -d
+```
+
+### Configure Environment
+
+```bash
+cd backend
+cp .env.example .env
+# edit DATABASE_URL if needed
+```
+
+### Database Init (SQLModel)
+
+Tables are created automatically on application startup using `SQLModel.metadata.create_all`.
+
+### Run API
+
+```bash
+cd backend
+uvicorn app.main:app --reload
+```
+
+On startup, the API seeds a default Dataset from `data/*.json` if the table is empty.
+
+### Quick Curl Check
+
+```bash
+# create dataset
+curl -s -X POST http://localhost:8000/api/v1/datasets \
+  -H "Content-Type: application/json" \
+  -d '{"name":"demo","payload":{"subjects":[],"teachers":[],"classes":[]}}'
+
+# generate run
+curl -s -X POST http://localhost:8000/api/v1/timetables/generate \
+  -H "Content-Type: application/json" \
+  -d '{"dataset_id": 1, "params": {"generations": 50}}'
+
+# check status
+curl -s http://localhost:8000/api/v1/timetables/runs/1
+
+# get result
+curl -s http://localhost:8000/api/v1/timetables/runs/1/result
+```
+
+
 3. **`schedule_class_*.csv`** - For each class
 
    - Rows: lesson numbers (Lesson 1 - Lesson 6)
