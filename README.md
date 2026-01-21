@@ -28,10 +28,11 @@ iu-project-cs/
 │   └── v3/                    # Third generation results (and so on...)
 │       ├── schedule.json
 │       └── *.csv files
-├── services/
-│   ├── data_service.py          # Data service
-│   └── genetic_scheduler.py     # Genetic algorithm
-├── main.py                      # Main application menu
+├── core/
+│   ├── io/data_service.py       # Data service
+│   ├── ga/genetic_scheduler.py  # Genetic algorithm
+│   └── export/                  # Export helpers (CSV/PDF/JSON)
+├── core/main.py                 # Main application menu
 └── validate_data.py             # Data validation script
 ```
 
@@ -79,7 +80,7 @@ iu-project-cs/
 ### Running the program:
 
 ```bash
-python main.py
+python -m core.main
 ```
 
 ### Menu:

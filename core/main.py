@@ -1,8 +1,8 @@
-from services.export.pdf_exporter import export_schedule_pdf
-from services.export.schedule_exporter import export_schedule_json, export_to_csv
-from services.ga.genetic_scheduler import GeneticScheduler, get_next_version_dir
-from services.io.data_service import DataService
-from validate_data import DataValidator
+from core.export.pdf_exporter import export_schedule_pdf
+from core.export.schedule_exporter import export_schedule_json, export_to_csv
+from core.ga.genetic_scheduler import GeneticScheduler, get_next_version_dir
+from core.io.data_service import DataService
+from core.validation import DataValidator
 
 # Global variable for selected teachers file
 CURRENT_TEACHERS_FILE = "teachers.json"
@@ -117,13 +117,13 @@ def generate_schedule():
             break
         print("Invalid option. Please try again.")
 
-    print(f"Configuration:")
+    print("Configuration:")
     print(f"  - Days per week: {len(scheduler.DAYS)}")
     print(f"  - Lessons per day: {scheduler.LESSONS_PER_DAY}")
     print(f"  - Number of classes: {len(scheduler.classes)}")
     print(f"  - Number of teachers: {len(scheduler.teachers)}")
     print(f"  - Number of subjects: {len(scheduler.subjects)}")
-    print(f"\nGenetic Algorithm Parameters:")
+    print("\nGenetic Algorithm Parameters:")
     print(f"  - Population size: {scheduler.POPULATION_SIZE}")
     print(f"  - Generations: {scheduler.GENERATIONS}")
     print(f"  - Mutation rate: {scheduler.MUTATION_RATE}")

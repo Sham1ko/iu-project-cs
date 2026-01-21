@@ -3,7 +3,7 @@ import random
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from services.io.data_service import DataService
+from core.io.data_service import DataService
 
 from .fitness_metrics import calculate_schedule_fitness
 from .population_init import initialize_population
