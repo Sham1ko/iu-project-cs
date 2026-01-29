@@ -1,22 +1,15 @@
 from __future__ import annotations
 
 import logging
-import sys
 import time
-from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Ensure repo root is importable for the core package.
-ROOT_DIR = Path(__file__).resolve().parents[3]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.append(str(ROOT_DIR))
-
-from core.ga.fitness_metrics import (  # noqa: E402
+from app.core.ga.fitness_metrics import (
     count_teacher_conflicts,
     count_teacher_gaps,
     count_total_lessons,
 )
-from core.ga.genetic_scheduler import GeneticScheduler  # noqa: E402
+from app.core.ga.genetic_scheduler import GeneticScheduler
 
 logger = logging.getLogger(__name__)
 

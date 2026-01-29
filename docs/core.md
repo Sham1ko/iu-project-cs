@@ -1,12 +1,12 @@
 # Core GA
 
-The genetic algorithm lives in the `core/` package and is used by the backend adapter.
+The genetic algorithm lives in `backend/app/core/` and is used by the backend adapter.
 
 ## Key modules
 
-- `core/ga/genetic_scheduler.py` provides `GeneticScheduler`.
-- `core/io/data_service.py` loads classes, teachers, and subjects.
-- `core/export/schedule_exporter.py` formats results (JSON/CSV/PDF).
+- `backend/app/core/ga/genetic_scheduler.py` provides `GeneticScheduler`.
+- `backend/app/core/io/data_service.py` loads classes, teachers, and subjects.
+- `backend/app/core/export/schedule_exporter.py` formats results (JSON/CSV/PDF).
 
 ## How it is called
 
