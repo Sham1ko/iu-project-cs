@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def _resolve_dataset_id(session: Session, dataset_id: Optional[int]) -> int:
-    if dataset_id is not None:
+    if dataset_id is not None and dataset_id != 0:
         dataset = session.get(Dataset, dataset_id)
         if dataset is None:
             raise ValueError(f"Dataset {dataset_id} not found.")

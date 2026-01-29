@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from core.ga.fitness_metrics import (
+from ..ga.fitness_metrics import (
     count_teacher_conflicts,
     count_teacher_gaps,
     count_total_lessons,

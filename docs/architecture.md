@@ -12,7 +12,7 @@
 - API: `backend/app/api/routers`
 - Services: `backend/app/services`
 - Storage: Postgres with SQLModel models
-- GA engine: `core/`
+- GA engine: `backend/app/core/`
 
 ## Data flow
 

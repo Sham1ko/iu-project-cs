@@ -1,8 +1,8 @@
-from core.export.pdf_exporter import export_schedule_pdf
-from core.export.schedule_exporter import export_schedule_json, export_to_csv
-from core.ga.genetic_scheduler import GeneticScheduler, get_next_version_dir
-from core.io.data_service import DataService
-from core.validation import DataValidator
+from .export.pdf_exporter import export_schedule_pdf
+from .export.schedule_exporter import export_schedule_json, export_to_csv
+from .ga.genetic_scheduler import GeneticScheduler, get_next_version_dir
+from .io.data_service import DataService
+from .validation import DataValidator
 
 # Global variable for selected teachers file
 CURRENT_TEACHERS_FILE = "teachers.json"

@@ -170,7 +170,7 @@ After schedule generation, the system creates several CSV files in a versioned f
 To create a new schedule version:
 
 ```bash
-python -m core.main
+PYTHONPATH=backend python -m app.core.main
 ```
 
 Select option "1" - the system will:

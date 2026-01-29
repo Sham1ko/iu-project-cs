@@ -4,7 +4,7 @@ A full stack timetable generator based on a genetic algorithm (GA).
 
 This repo contains:
 
-- `core/` - GA engine and data loaders
+- `backend/app/core/` - GA engine and data loaders
 - `backend/` - FastAPI API + SQLModel + Postgres
 - `frontend/` - React UI (Vite + TypeScript)
 - `data/` - sample input data and generated schedules
@@ -89,7 +89,7 @@ curl -s http://localhost:8000/api/v1/timetables/runs/1/result
 ## Optional: run core GA directly
 
 ```
-python -m core.main
+PYTHONPATH=backend python -m app.core.main
 ```
 
 ## Docs

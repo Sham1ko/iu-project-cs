@@ -1,20 +1,12 @@
 from __future__ import annotations
 
 import logging
-import sys
-from pathlib import Path
 
 from sqlmodel import Session, select
 
 from app.config import get_settings
 from app.db.models import Dataset
-
-# Ensure repo root is importable for the core package.
-ROOT_DIR = Path(__file__).resolve().parents[3]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.append(str(ROOT_DIR))
-
-from core.io.data_service import DataService  # noqa: E402
+from app.core.io.data_service import DataService
 
 logger = logging.getLogger(__name__)
 
