@@ -10,14 +10,41 @@ This repo contains:
 - `data/` - sample input data and generated schedules
 - `docs/` - simple documentation (architecture, logic, deployment)
 
-## Quick start (local)
+## Quick start
 
 Prereqs: Python 3.11+, Node 18+, Docker.
 
-1. Start Postgres
+### Option A: Docker (all services)
+
+Prereqs: Docker.
+
+1. Create env file (repo root)
 
 ```
-docker compose up -d
+cp .env.example .env
+```
+
+2. Update `DATA_DIR` in `.env`
+
+The example uses a Windows path; set a valid local path or delete `DATA_DIR`
+to use the default `./data`.
+
+3. Build and run everything
+
+```
+docker compose up --build
+```
+
+Open http://localhost:5173 (frontend) and http://localhost:8000 (backend).
+
+### Option B: Local dev (backend + frontend)
+
+Prereqs: Python 3.11+, Node 18+, Docker.
+
+1. Start Postgres only
+
+```
+docker compose up -d db
 ```
 
 2. Create env file (repo root)
@@ -26,7 +53,12 @@ docker compose up -d
 cp .env.example .env
 ```
 
-3. Run backend
+3. Update `DATA_DIR` in `.env`
+
+The example uses a Windows path; set a valid local path or delete `DATA_DIR`
+to use the default `./data`.
+
+4. Run backend
 
 ```
 cd backend
@@ -37,7 +69,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-4. Run frontend
+5. Run frontend
 
 ```
 cd frontend
@@ -53,7 +85,8 @@ Repo `.env` (root):
 
 - `DATABASE_URL` (preferred)
 - or `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD`
-- `DATA_DIR` (path to `data/`)
+- `DATA_DIR` (optional path to `data/`, defaults to `./data`; update the
+  Windows example if you copy `.env.example`)
 - `VITE_API_BASE_URL` (example: `http://localhost:8000`)
 
 ## API endpoints
