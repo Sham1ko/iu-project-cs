@@ -17,11 +17,16 @@ Prereqs: Python 3.11+, Node 18+, Docker.
 1. Start Postgres
 
 ```
-cd backend
 docker compose up -d
 ```
 
-2. Run backend
+2. Create env file (repo root)
+
+```
+cp .env.example .env
+```
+
+3. Run backend
 
 ```
 cd backend
@@ -29,15 +34,13 @@ python -m venv .venv
 # Windows PowerShell: .\.venv\Scripts\Activate.ps1
 # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-3. Run frontend
+4. Run frontend
 
 ```
 cd frontend
-cp .env.example .env
 npm install
 npm run dev
 ```
@@ -46,14 +49,11 @@ Open http://localhost:5173
 
 ## Environment variables
 
-Backend (`backend/.env`):
+Repo `.env` (root):
 
 - `DATABASE_URL` (preferred)
 - or `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD`
 - `DATA_DIR` (path to `data/`)
-
-Frontend (`frontend/.env`):
-
 - `VITE_API_BASE_URL` (example: `http://localhost:8000`)
 
 ## API endpoints

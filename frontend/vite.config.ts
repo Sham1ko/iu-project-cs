@@ -1,13 +1,16 @@
+import path from "node:path";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 
 const isAbsoluteUrl = (value: string) => /^https?:\/\//i.test(value);
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  const rootEnvDir = path.resolve(__dirname, "..");
+  const env = loadEnv(mode, rootEnvDir, "");
   const apiBaseUrl = env.VITE_API_BASE_URL || "";
 
   return {
+    envDir: rootEnvDir,
     plugins: [react()],
     server: {
       port: 5173,

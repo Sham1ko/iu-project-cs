@@ -3,9 +3,9 @@ services:
     image: postgres:17-alpine
     container_name: iu-project-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: iu_project
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-iu_project}
     ports:
       - "5432:5432"
     volumes:
@@ -14,14 +14,12 @@ services:
 
   backend:
     build:
-      context: ..
+      context: .
       dockerfile: backend/Dockerfile
+    env_file:
+      - .env
     environment:
       DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: iu_project
-      DB_USER: postgres
-      DB_PASSWORD: postgres
       DATABASE_URL: postgresql://postgres:postgres@db:5432/iu_project
       DATA_DIR: /app/data
     ports:
@@ -32,8 +30,10 @@ services:
 
   frontend:
     build:
-      context: ../frontend
+      context: ./frontend
       dockerfile: Dockerfile
+    env_file:
+      - .env
     environment:
       VITE_API_BASE_URL: http://backend:8000
     ports:
