@@ -17,7 +17,7 @@ FastAPI backend that manages timetable generation and persistence.
 
 ## Configuration
 
-`backend/.env` example:
+Repo `.env` example:
 
 ```
 DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/iu_project

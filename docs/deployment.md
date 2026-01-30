@@ -5,15 +5,14 @@ This project is set up for local development first. Use these steps for a simple
 ## Local Postgres
 
 ```
-cd backend
 docker compose up -d
 ```
 
 ## Backend
 
 ```
-cd backend
 cp .env.example .env
+cd backend
 uvicorn app.main:app --reload
 ```
 
@@ -21,7 +20,6 @@ uvicorn app.main:app --reload
 
 ```
 cd frontend
-cp .env.example .env
 npm install
 npm run dev
 ```

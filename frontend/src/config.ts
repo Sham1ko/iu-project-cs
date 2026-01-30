@@ -1,7 +1,7 @@
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 if (!rawBaseUrl) {
-  throw new Error("VITE_API_BASE_URL is required. Set it in frontend/.env.");
+  throw new Error("VITE_API_BASE_URL is required. Set it in the repo .env.");
 }
 
 const isAbsolute = /^https?:\/\//i.test(rawBaseUrl);

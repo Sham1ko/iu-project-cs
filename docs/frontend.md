@@ -17,7 +17,7 @@ This folder describes the React UI that talks to the FastAPI backend.
 
 ## Environment
 
-Create `frontend/.env` with:
+Create repo `.env` with:
 
 ```
 VITE_API_BASE_URL=http://localhost:8000
