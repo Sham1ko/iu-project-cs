@@ -71,7 +71,7 @@ cd backend
 python -m venv .venv
 # Windows PowerShell: .\.venv\Scripts\Activate.ps1
 # macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 uvicorn app.main:app --reload
 ```
 
@@ -139,3 +139,4 @@ PYTHONPATH=backend python -m app.core.main
 - `docs/core.md`
 - `docs/logic.md`
 - `docs/deployment.md`
+- `docs/CSV_GUIDE.md`
