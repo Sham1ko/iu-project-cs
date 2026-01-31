@@ -35,6 +35,12 @@ to use the default `./data`.
 docker compose up --build
 ```
 
+Optional: enable Compose Watch (auto-sync/rebuild on file changes)
+
+```
+docker compose up --watch
+```
+
 Open http://localhost:5173 (frontend) and http://localhost:8000 (backend).
 
 ### Option B: Local dev (backend + frontend)
