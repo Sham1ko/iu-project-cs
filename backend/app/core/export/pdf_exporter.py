@@ -18,13 +18,14 @@ def export_schedule_pdf(
     teachers_by_id: Dict[int, Dict[str, Any]],
     subjects_by_id: Dict[int, Dict[str, Any]],
     title: str = "School Schedule",
+    filename: str | None = None,
 ) -> Path:
     """
     Export the schedule into a PDF with per-class tables (lessons x days).
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    pdf_path = output_path / "schedule.pdf"
+    pdf_path = output_path / (filename or "schedule.pdf")
 
     doc = SimpleDocTemplate(str(pdf_path), pagesize=landscape(A4))
     styles = getSampleStyleSheet()

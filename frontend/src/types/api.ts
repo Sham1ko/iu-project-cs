@@ -17,6 +17,16 @@ export interface GenerationRun {
   dataset_id?: number | null;
 }
 
+export interface GenerationRunListItem {
+  id: number;
+  status: GenerationStatus;
+  created_at: string;
+  finished_at?: string | null;
+  dataset_id?: number | null;
+  dataset_name?: string | null;
+  has_pdf: boolean;
+}
+
 export interface TimetableResult {
   payload: unknown;
 }

@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 from sqlmodel import Session, select
 
 from app.core_ga_adapter.adapter import generate_timetable
+from app.services.run_files import get_runs_dir
 from app.db import session as db_session
 from app.db.models import Dataset, GenerationRun, GenerationStatus, TimetableResult
 
@@ -67,6 +68,9 @@ def run_generation(run_id: int) -> None:
             if isinstance(run.params, dict):
                 config.update(run.params)
             config["run_id"] = run_id
+            config["output_dir"] = get_runs_dir()
+            config["pdf_title"] = f"Schedule - run {run_id}"
+            config["pdf_filename"] = f"schedule_{run_id}.pdf"
 
             start_time = time.perf_counter()
             result_payload = generate_timetable(dataset.payload, config)

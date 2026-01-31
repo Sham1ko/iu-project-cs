@@ -26,3 +26,13 @@ class GenerationRunRead(SQLModel):
     started_at: Optional[datetime]
     finished_at: Optional[datetime]
     dataset_id: Optional[int]
+
+
+class GenerationRunListItem(SQLModel):
+    id: int
+    status: GenerationStatus
+    created_at: datetime
+    finished_at: Optional[datetime]
+    dataset_id: Optional[int]
+    dataset_name: Optional[str]
+    has_pdf: bool

@@ -1,6 +1,7 @@
 import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom";
 import DatasetsPage from "./pages/DatasetsPage";
 import GeneratePage from "./pages/GeneratePage";
+import RunsPage from "./pages/RunsPage";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
               Generate
             </NavLink>
             <NavLink to="/datasets">Datasets</NavLink>
+            <NavLink to="/runs">Runs</NavLink>
           </nav>
         </header>
 
@@ -26,6 +28,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<GeneratePage />} />
             <Route path="/datasets" element={<DatasetsPage />} />
+            <Route path="/runs" element={<RunsPage />} />
           </Routes>
         </main>
       </div>
