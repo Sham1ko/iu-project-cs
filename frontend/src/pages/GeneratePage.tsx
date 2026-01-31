@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../api/client";
-import { generateTimetable, getRunResult, getRunStatus } from "../api/timetables";
-import JsonViewer from "../components/JsonViewer";
+import {
+  deleteRunPdf,
+  generateTimetable,
+  getRunPdfUrl,
+  getRunResult,
+  getRunStatus,
+} from "../api/timetables";
 import StatusBadge from "../components/StatusBadge";
 import type { GenerationRun } from "../types/api";
 import { formatDateTime } from "../utils/format";
@@ -15,12 +20,15 @@ export default function GeneratePage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [pdfDeleted, setPdfDeleted] = useState(false);
 
   const handleGenerate = async () => {
     setError(null);
     setInfo(null);
     setResult(null);
     setRun(null);
+    setPdfDeleted(false);
 
     const parsedId = datasetId.trim() ? Number(datasetId.trim()) : undefined;
     if (datasetId.trim() && Number.isNaN(parsedId)) {
@@ -43,6 +51,25 @@ export default function GeneratePage() {
       setError(message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeletePdf = async () => {
+    if (!run?.id) {
+      return;
+    }
+    setError(null);
+    setInfo(null);
+    setIsDeleting(true);
+    try {
+      await deleteRunPdf(run.id);
+      setPdfDeleted(true);
+      setInfo("PDF deleted.");
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Failed to delete PDF.";
+      setError(message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -179,14 +206,44 @@ export default function GeneratePage() {
 
       {run && run.status === "done" && result && (
         <div className="panel" style={{ animationDelay: "0.15s" }}>
-          <div className="panel-title">Result payload</div>
-          <JsonViewer value={result} />
+          <div className="panel-title">Result file</div>
+          <div className="file-row">
+            <div className="file-meta">
+              <div className="file-name">{`schedule_${run.id}.pdf`}</div>
+              <div className="file-info">
+                Generated: {formatDateTime(run.finished_at || run.created_at)}
+              </div>
+            </div>
+            <div className="file-actions">
+              {pdfDeleted ? (
+                <span className="button button-secondary button-disabled">Download</span>
+              ) : (
+                <a
+                  className="button button-secondary"
+                  href={getRunPdfUrl(run.id)}
+                  target="_blank"
+                  rel="noreferrer"
+                  download
+                >
+                  Download
+                </a>
+              )}
+              <button
+                className="button button-danger"
+                onClick={handleDeletePdf}
+                disabled={isDeleting || pdfDeleted}
+              >
+                {pdfDeleted ? "Deleted" : isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+          {pdfDeleted && <div className="hint">PDF has been deleted.</div>}
         </div>
       )}
 
       {run && run.status === "done" && !result && (
         <div className="panel" style={{ animationDelay: "0.15s" }}>
-          <div className="panel-title">Result payload</div>
+          <div className="panel-title">Result file</div>
           <div className="hint">Not ready yet. Polling continues.</div>
         </div>
       )}

@@ -4,6 +4,7 @@ import logging
 import time
 from typing import Any, Dict, Optional
 
+from app.core.export.pdf_exporter import export_schedule_pdf
 from app.core.ga.fitness_metrics import (
     count_teacher_conflicts,
     count_teacher_gaps,
@@ -98,6 +99,9 @@ def generate_timetable(
 ) -> Dict[str, Any]:
     config = config or {}
     run_id = config.get("run_id")
+    output_dir = config.get("output_dir")
+    pdf_title = config.get("pdf_title")
+    pdf_filename = config.get("pdf_filename")
 
     data_service = DictDataService(input_data)
     scheduler = GeneticScheduler(data_service)
@@ -108,6 +112,22 @@ def generate_timetable(
     duration = time.perf_counter() - start_time
 
     result = _build_result_payload(schedule, scheduler, fitness, generation)
+    if output_dir:
+        try:
+            export_schedule_pdf(
+                schedule,
+                output_dir=str(output_dir),
+                days=scheduler.DAYS,
+                lessons_per_day=scheduler.LESSONS_PER_DAY,
+                classes=scheduler.classes,
+                classes_by_id=scheduler.classes_by_id,
+                teachers_by_id=scheduler.teachers_by_id,
+                subjects_by_id=scheduler.subjects_by_id,
+                title=pdf_title or f"Schedule - run {run_id}",
+                filename=str(pdf_filename) if pdf_filename else None,
+            )
+        except Exception as exc:
+            logger.exception("PDF export failed run_id=%s error=%s", run_id, exc)
     stats = result.get("statistics", {})
     logger.info(
         "GA completed run_id=%s duration=%.2fs fitness=%.2f conflicts=%s gaps=%s",
