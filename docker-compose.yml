@@ -24,6 +24,15 @@ services:
       DATA_DIR: /app/data
     ports:
       - "8000:8000"
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend
+          target: /app/backend
+          ignore:
+            - __pycache__/
+        - action: rebuild
+          path: ./backend/requirements.txt
     volumes:
       - ./data:/app/data
     depends_on:
@@ -40,6 +49,18 @@ services:
       VITE_API_BASE_URL: http://backend:8000
     ports:
       - "5173:5173"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: rebuild
+          path: ./frontend/package-lock.json
     depends_on:
       - backend
     restart: unless-stopped
