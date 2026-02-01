@@ -244,7 +244,7 @@ export default function GeneratePage() {
       <div className="grid gap-2">
         <div>
           <h1 className="text-3xl font-semibold">Generate timetable</h1>
-          <p className="text-[var(--muted)]">Kick off a GA run and watch the progress live.</p>
+          <p className="text-muted">Kick off a GA run and watch the progress live.</p>
         </div>
       </div>
 
@@ -254,7 +254,7 @@ export default function GeneratePage() {
           <label className="grid gap-2 text-sm">
             <span>Dataset id (optional)</span>
             <input
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-strong)] px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-border bg-(--surface-strong) px-3 py-2 text-sm"
               value={datasetId}
               onChange={(event) => setDatasetId(event.target.value)}
               placeholder="Leave empty to use latest dataset"
@@ -263,7 +263,7 @@ export default function GeneratePage() {
           <label className="grid gap-2 text-sm">
             <span>Generations (optional)</span>
             <input
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-strong)] px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-border bg-(--surface-strong) px-3 py-2 text-sm"
               type="number"
               min={1}
               step={1}
@@ -325,7 +325,7 @@ export default function GeneratePage() {
           </div>
 
           {run.status === "failed" && (
-            <div className="mt-3 font-semibold text-[var(--error)]">
+            <div className="mt-3 font-semibold text-(--error)">
               {run.error_message || "Run failed. Check backend logs."}
             </div>
           )}
@@ -335,10 +335,10 @@ export default function GeneratePage() {
       {run && run.status === "done" && result && (
         <div className={panelClass} style={{ animationDelay: "0.15s" }}>
           <div className={panelTitleClass}>Result file</div>
-          <div className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 rounded-2xl border border-border bg-(--surface-strong) p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="grid gap-1">
               <div className="font-semibold">{`schedule_${run.id}.pdf`}</div>
-              <div className="text-sm text-[var(--muted)]">
+              <div className="text-sm text-muted">
                 Generated: {formatDateTime(run.finished_at || run.created_at)}
               </div>
             </div>
