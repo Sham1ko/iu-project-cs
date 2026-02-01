@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ApiError } from "../api/client";
 import { deleteRun, getRunPdfUrl, listRuns } from "../api/timetables";
 import StatusBadge from "../components/StatusBadge";
@@ -62,9 +63,9 @@ export default function RunsPage() {
       )}
 
       <div className="panel" style={{ animationDelay: "0.05s" }}>
-        <div className="panel-title">Run history</div>
+        <div className="panel-title">Run History</div>
         {isLoading ? (
-          <div className="hint">Loading runs...</div>
+          <div className="hint">Loading runs…</div>
         ) : runs.length === 0 ? (
           <div className="hint">No runs yet.</div>
         ) : (
@@ -92,6 +93,18 @@ export default function RunsPage() {
                   </span>
                   <span className={run.has_pdf ? "" : "text-muted"}>{fileName}</span>
                   <span className="row-actions">
+                    {run.status === "done" ? (
+                      <Link
+                        className="button button-secondary"
+                        to={`/runs/${run.id}/schedule`}
+                      >
+                        View Schedule
+                      </Link>
+                    ) : (
+                      <span className="button button-secondary button-disabled">
+                        View Schedule
+                      </span>
+                    )}
                     {canDownload ? (
                       <a
                         className="button button-secondary"

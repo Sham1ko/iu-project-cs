@@ -28,7 +28,27 @@ export interface GenerationRunListItem {
 }
 
 export interface TimetableResult {
-  payload: unknown;
+  payload: TimetableResultPayload;
+}
+
+export interface ScheduleEntry {
+  teacher: string;
+  subject: string;
+}
+
+export type ScheduleLesson = Record<string, ScheduleEntry | null>;
+export type ScheduleDay = Record<string, ScheduleLesson>;
+export type ScheduleByDay = Record<string, ScheduleDay>;
+
+export interface TimetableResultPayload {
+  schedule: ScheduleByDay;
+  fitness_score: number;
+  generation: number;
+  statistics: {
+    total_lessons: number;
+    teacher_conflicts: number;
+    teacher_gaps: number;
+  };
 }
 
 export interface Dataset {
