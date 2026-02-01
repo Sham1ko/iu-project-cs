@@ -96,80 +96,6 @@ a {
   outline-offset: 2px;
 }
 
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 16px 20px;
-  border-radius: 20px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  animation: rise 0.5s ease both;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: var(--accent);
-  color: white;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.brand-title {
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.brand-subtitle {
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
-.nav {
-  display: flex;
-  gap: 16px;
-  font-weight: 600;
-}
-
-.nav a {
-  padding: 8px 12px;
-  border-radius: 999px;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-  touch-action: manipulation;
-}
-
-.nav a:hover {
-  background: rgba(15, 118, 110, 0.12);
-  color: var(--accent-strong);
-}
-
-.nav a:focus-visible {
-  background: rgba(15, 118, 110, 0.12);
-  color: var(--accent-strong);
-  outline: 2px solid rgba(15, 118, 110, 0.35);
-  outline-offset: 2px;
-}
-
-.nav a.active {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-}
-
 .app-main {
   margin-top: 28px;
 }
@@ -651,11 +577,6 @@ a {
 @media (max-width: 720px) {
   .app {
     padding: 24px 16px 48px;
-  }
-
-  .app-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .form-grid {

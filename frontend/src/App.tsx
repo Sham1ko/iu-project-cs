@@ -1,8 +1,9 @@
-import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import DatasetsPage from "./pages/DatasetsPage";
 import GeneratePage from "./pages/GeneratePage";
 import RunSchedulePage from "./pages/RunSchedulePage";
 import RunsPage from "./pages/RunsPage";
+import Navbar from "./components/Navbar";
 
 export default function App() {
   return (
@@ -11,22 +12,7 @@ export default function App() {
         <a className="skip-link" href="#main-content">
           Skip to Content
         </a>
-        <header className="app-header">
-          <div className="brand">
-            <span className="brand-mark">GA</span>
-            <div>
-              <div className="brand-title">Timetable Studio</div>
-              <div className="brand-subtitle">FastAPI + GA runner</div>
-            </div>
-          </div>
-          <nav className="nav">
-            <NavLink to="/" end>
-              Generate
-            </NavLink>
-            <NavLink to="/datasets">Datasets</NavLink>
-            <NavLink to="/runs">Runs</NavLink>
-          </nav>
-        </header>
+        <Navbar />
 
         <main className="app-main" id="main-content">
           <Routes>
