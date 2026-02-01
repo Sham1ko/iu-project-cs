@@ -11,11 +11,7 @@ import ScheduleTable from "../components/ScheduleTable";
 import StatusBadge from "../components/StatusBadge";
 import type { GenerationRun, ScheduleByDay, TimetableResultPayload } from "../types/api";
 import { formatDateTime } from "../utils/format";
-import {
-  collectClassNames,
-  collectLessonsForClass,
-  getScheduleDays,
-} from "../utils/schedule";
+import { collectClassNames, collectLessonsForClass, getScheduleDays } from "../utils/schedule";
 import { Progress } from "@/components/ui/progress";
 
 const POLL_INTERVAL_MS = 1500;
@@ -37,6 +33,7 @@ export default function GeneratePage() {
 
   const [datasetId, setDatasetId] = useState("");
   const [generations, setGenerations] = useState("");
+  const [lastSubmittedGenerations, setLastSubmittedGenerations] = useState<number | null>(null);
   const [run, setRun] = useState<GenerationRun | null>(null);
   const [result, setResult] = useState<TimetableResultPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +56,62 @@ export default function GeneratePage() {
     classNames.length > 0 &&
     classNames.some((className) => (lessonsByClass[className]?.length ?? 0) > 0);
 
+  const formatDuration = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds < 0) {
+      return "-";
+    }
+    const rounded = Math.round(seconds);
+    if (rounded < 60) {
+      return `${rounded}s`;
+    }
+    const minutes = Math.floor(rounded / 60);
+    const remainingSeconds = rounded % 60;
+    if (minutes < 60) {
+      return `${minutes}m ${remainingSeconds}s`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
+  const generationsFromRun = useMemo(() => {
+    const params = run?.params as Record<string, unknown> | undefined;
+    const rawValue = params?.generations;
+    const numericValue =
+      typeof rawValue === "number"
+        ? rawValue
+        : typeof rawValue === "string"
+          ? Number(rawValue)
+          : undefined;
+    if (!Number.isFinite(numericValue) || !numericValue) {
+      return null;
+    }
+    return numericValue;
+  }, [run?.params]);
+
+  const generationsDisplay = generationsFromRun ?? lastSubmittedGenerations;
+  const generationsValueLabel = generationsDisplay ? `${generationsDisplay}` : "Default (200)";
+
+  const startedAt = run?.started_at ? new Date(run.started_at) : null;
+  const finishedAt = run?.finished_at ? new Date(run.finished_at) : null;
+  const durationSeconds =
+    startedAt && finishedAt ? (finishedAt.getTime() - startedAt.getTime()) / 1000 : null;
+
+  const finishedValue = () => {
+    if (!run) {
+      return "-";
+    }
+    if (run.status === "running") {
+      return formatDateTime(run.finished_at);
+    }
+    if (run.status === "done") {
+      const finishedLabel = formatDateTime(run.finished_at);
+      const durationLabel = durationSeconds ? ` (${formatDuration(durationSeconds)})` : "";
+      return `${finishedLabel}${durationLabel}`;
+    }
+    return formatDateTime(run.finished_at);
+  };
+
   const handleGenerate = async () => {
     setError(null);
     setInfo(null);
@@ -75,7 +128,8 @@ export default function GeneratePage() {
     const parsedGenerations = generationsValue ? Number(generationsValue) : undefined;
     if (
       generationsValue &&
-      (!Number.isFinite(parsedGenerations) ||
+      (parsedGenerations === undefined ||
+        !Number.isFinite(parsedGenerations) ||
         !Number.isInteger(parsedGenerations) ||
         parsedGenerations <= 0)
     ) {
@@ -85,14 +139,16 @@ export default function GeneratePage() {
 
     try {
       setIsSubmitting(true);
+      setLastSubmittedGenerations(parsedGenerations ?? null);
       const response = await generateTimetable(
         parsedId,
-        parsedGenerations ? { generations: parsedGenerations } : undefined
+        parsedGenerations ? { generations: parsedGenerations } : undefined,
       );
       setRun({
         id: response.run_id,
         status: response.status,
         progress: 0,
+        params: parsedGenerations ? { generations: parsedGenerations } : undefined,
         created_at: new Date().toISOString(),
       });
       setInfo("Generation started. Polling status...");
@@ -188,9 +244,7 @@ export default function GeneratePage() {
       <div className="grid gap-2">
         <div>
           <h1 className="text-3xl font-semibold">Generate timetable</h1>
-          <p className="text-[var(--muted)]">
-            Kick off a GA run and watch the progress live.
-          </p>
+          <p className="text-[var(--muted)]">Kick off a GA run and watch the progress live.</p>
         </div>
       </div>
 
@@ -218,11 +272,7 @@ export default function GeneratePage() {
               placeholder="Default: 200"
             />
           </label>
-          <button
-            className={primaryButtonClass}
-            onClick={handleGenerate}
-            disabled={isSubmitting}
-          >
+          <button className={primaryButtonClass} onClick={handleGenerate} disabled={isSubmitting}>
             {isSubmitting ? "Starting..." : "Generate timetable"}
           </button>
         </div>
@@ -261,8 +311,8 @@ export default function GeneratePage() {
               <Progress value={run.progress} className="mt-2 w-full" />
             </div>
             <div>
-              <div className={labelClass}>Created</div>
-              <div className={valueClass}>{formatDateTime(run.created_at)}</div>
+              <div className={labelClass}>Generations</div>
+              <div className={valueClass}>{generationsValueLabel}</div>
             </div>
             <div>
               <div className={labelClass}>Started</div>
@@ -270,7 +320,7 @@ export default function GeneratePage() {
             </div>
             <div>
               <div className={labelClass}>Finished</div>
-              <div className={valueClass}>{formatDateTime(run.finished_at)}</div>
+              <div className={valueClass}>{finishedValue()}</div>
             </div>
           </div>
 
