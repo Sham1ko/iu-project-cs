@@ -1,29 +1,56 @@
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 
 class DataService:
-    """Service for working with schedule data"""
-    
-    def __init__(self, data_dir: str = "data", teachers_file: str = "teachers.json"):
+    """Service for working with schedule data."""
+
+    def __init__(
+        self,
+        data_dir: str = "data",
+        teachers_file: str = "teachers.json",
+        payload: Optional[Dict[str, Any]] = None,
+    ):
         self.data_dir = Path(data_dir)
         self.teachers_file = teachers_file
+        self._subjects: Optional[List[Dict[str, Any]]] = None
+        self._teachers: Optional[List[Dict[str, Any]]] = None
+        self._classes: Optional[List[Dict[str, Any]]] = None
+
+        if payload is not None:
+            self._subjects = payload.get("subjects")
+            self._teachers = payload.get("teachers")
+            self._classes = payload.get("classes")
+            if (
+                self._subjects is None
+                or self._teachers is None
+                or self._classes is None
+            ):
+                raise ValueError(
+                    "Dataset payload must include 'subjects', 'teachers', and 'classes'."
+                )
     
     def load_subjects(self) -> List[Dict[str, Any]]:
         """Load list of subjects"""
+        if self._subjects is not None:
+            return self._subjects
         with open(self.data_dir / "subjects.json", "r", encoding="utf-8") as f:
             data = json.load(f)
             return data["subjects"]
     
     def load_teachers(self) -> List[Dict[str, Any]]:
         """Load list of teachers"""
+        if self._teachers is not None:
+            return self._teachers
         with open(self.data_dir / self.teachers_file, "r", encoding="utf-8") as f:
             data = json.load(f)
             return data["teachers"]
     
     def load_classes(self) -> List[Dict[str, Any]]:
         """Load list of classes"""
+        if self._classes is not None:
+            return self._classes
         with open(self.data_dir / "classes.json", "r", encoding="utf-8") as f:
             data = json.load(f)
             return data["classes"]
