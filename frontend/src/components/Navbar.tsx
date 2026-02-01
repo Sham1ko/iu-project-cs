@@ -10,20 +10,20 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const navItems = [
   { to: "/", label: "Generate", end: true },
-  { to: "/datasets", label: "Datasets" },
-  { to: "/runs", label: "Runs" },
+  { to: "/datasets", label: "Datasets", end: false },
+  { to: "/runs", label: "Runs", end: false },
 ] as const;
 
 export default function Navbar() {
   return (
-    <header className="flex items-center justify-between gap-6 rounded-[20px] border border-[var(--border)] bg-[var(--surface)] px-5 py-4 shadow-[var(--shadow)] animate-[rise_0.5s_ease_both] max-[720px]:flex-col max-[720px]:items-start">
+    <header className="flex items-center justify-between gap-6 rounded-4xl border border-border bg-(--surface) px-5 py-4 shadow-(--shadow) animate-[rise_0.5s_ease_both] max-[720px]:flex-col max-[720px]:items-start">
       <div className="flex items-center gap-4">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-[14px] bg-[var(--accent)] font-bold uppercase tracking-[0.08em] text-white">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-[14px] bg-accent font-bold uppercase tracking-[0.08em] text-white">
           GA
         </span>
         <div>
-          <div className="text-[1.1rem] font-bold text-[var(--text)]">Timetable Studio</div>
-          <div className="text-sm text-[var(--muted)]">FastAPI + GA runner</div>
+          <div className="text-[1.1rem] font-bold text-(--text)">Timetable Studio</div>
+          <div className="text-sm text-muted">FastAPI + GA runner</div>
         </div>
       </div>
 
