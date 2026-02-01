@@ -43,6 +43,26 @@ a {
   padding: 32px 24px 60px;
 }
 
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform 0.2s ease;
+  z-index: 999;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
 .app-header {
   display: flex;
   align-items: center;
@@ -95,6 +115,19 @@ a {
   padding: 8px 12px;
   border-radius: 999px;
   transition: background 0.2s ease, color 0.2s ease;
+  touch-action: manipulation;
+}
+
+.nav a:hover {
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--accent-strong);
+}
+
+.nav a:focus-visible {
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--accent-strong);
+  outline: 2px solid rgba(15, 118, 110, 0.35);
+  outline-offset: 2px;
 }
 
 .nav a.active {
@@ -114,6 +147,7 @@ a {
 .page-head h1 {
   margin: 0 0 8px;
   font-size: 2rem;
+  text-wrap: balance;
 }
 
 .page-head p {
@@ -177,6 +211,12 @@ a {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 12px 30px rgba(15, 118, 110, 0.24);
+  touch-action: manipulation;
+}
+
+.primary:focus-visible {
+  outline: 2px solid rgba(15, 118, 110, 0.5);
+  outline-offset: 2px;
 }
 
 .primary:disabled {
@@ -302,6 +342,12 @@ a {
   align-items: center;
   justify-content: center;
   min-width: 110px;
+  touch-action: manipulation;
+}
+
+.button:focus-visible {
+  outline: 2px solid rgba(15, 118, 110, 0.4);
+  outline-offset: 2px;
 }
 
 .button:disabled {
@@ -387,6 +433,168 @@ a {
   color: var(--muted);
 }
 
+.page-head-split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-head-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.schedule-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.schedule-nav {
+  position: sticky;
+  top: 120px;
+  align-self: start;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.schedule-nav-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.schedule-nav-list {
+  display: grid;
+  gap: 10px;
+}
+
+.schedule-nav a {
+  color: inherit;
+  opacity: 0.9;
+  font-weight: 600;
+  transition: color 0.2s ease, opacity 0.2s ease;
+  touch-action: manipulation;
+}
+
+.schedule-nav a:hover {
+  opacity: 1;
+  color: var(--accent-strong);
+}
+
+.schedule-nav a:focus-visible {
+  opacity: 1;
+  color: var(--accent-strong);
+  outline: 2px solid rgba(15, 118, 110, 0.35);
+  outline-offset: 2px;
+}
+
+.schedule-content {
+  display: grid;
+  gap: 20px;
+}
+
+.schedule-day {
+  scroll-margin-top: 120px;
+}
+
+.schedule-day-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.schedule-day-title h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  text-wrap: balance;
+}
+
+.schedule-day-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.schedule-table-wrapper {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 600px;
+}
+
+.schedule-table th,
+.schedule-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.schedule-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(15, 118, 110, 0.08);
+  z-index: 1;
+}
+
+.schedule-table tbody tr:last-child td,
+.schedule-table tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.schedule-table th[scope="row"] {
+  color: var(--muted);
+  font-weight: 600;
+  width: 80px;
+}
+
+.schedule-cell {
+  display: grid;
+  gap: 4px;
+}
+
+.schedule-subject {
+  font-weight: 600;
+}
+
+.schedule-teacher {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -425,6 +633,17 @@ a {
   .file-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 960px) {
+  .schedule-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-nav {
+    position: relative;
+    top: auto;
   }
 }
 

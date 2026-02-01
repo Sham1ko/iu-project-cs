@@ -4,6 +4,7 @@ import type {
   GenerationResponse,
   GenerationRun,
   GenerationRunListItem,
+  TimetableResultPayload,
 } from "../types/api";
 
 export const generateTimetable = async (datasetId?: number) => {
@@ -19,7 +20,7 @@ export const getRunStatus = async (runId: number) => {
 };
 
 export const getRunResult = async (runId: number) => {
-  return request<unknown>(`/timetables/runs/${runId}/result`);
+  return request<TimetableResultPayload>(`/timetables/runs/${runId}/result`);
 };
 
 export const listRuns = async () => {
