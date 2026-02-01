@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ApiError } from "../api/client";
 import {
   deleteRunPdf,
@@ -7,21 +7,41 @@ import {
   getRunResult,
   getRunStatus,
 } from "../api/timetables";
+import ScheduleTable from "../components/ScheduleTable";
 import StatusBadge from "../components/StatusBadge";
-import type { GenerationRun } from "../types/api";
+import type { GenerationRun, ScheduleByDay, TimetableResultPayload } from "../types/api";
 import { formatDateTime } from "../utils/format";
+import {
+  collectClassNames,
+  collectLessonsForClass,
+  getScheduleDays,
+} from "../utils/schedule";
 
 const POLL_INTERVAL_MS = 1500;
 
 export default function GeneratePage() {
   const [datasetId, setDatasetId] = useState("");
   const [run, setRun] = useState<GenerationRun | null>(null);
-  const [result, setResult] = useState<unknown>(null);
+  const [result, setResult] = useState<TimetableResultPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [pdfDeleted, setPdfDeleted] = useState(false);
+
+  const schedule = (result?.schedule ?? {}) as ScheduleByDay;
+  const days = useMemo(() => getScheduleDays(schedule), [schedule]);
+  const classNames = useMemo(() => collectClassNames(schedule), [schedule]);
+  const lessonsByClass = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const className of classNames) {
+      map[className] = collectLessonsForClass(schedule, className, days);
+    }
+    return map;
+  }, [classNames, days, schedule]);
+  const hasSchedule =
+    classNames.length > 0 &&
+    classNames.some((className) => (lessonsByClass[className]?.length ?? 0) > 0);
 
   const handleGenerate = async () => {
     setError(null);
@@ -238,6 +258,33 @@ export default function GeneratePage() {
             </div>
           </div>
           {pdfDeleted && <div className="hint">PDF has been deleted.</div>}
+        </div>
+      )}
+
+      {run && run.status === "done" && result && (
+        <div className="panel" style={{ animationDelay: "0.18s" }}>
+          <div className="panel-title">Schedule preview</div>
+          <div className="hint">Per-class timetable for Monday to Friday.</div>
+        </div>
+      )}
+
+      {run && run.status === "done" && result && hasSchedule && (
+        <div className="schedule-content" style={{ animationDelay: "0.2s" }}>
+          {classNames.map((className) => (
+            <ScheduleTable
+              key={className}
+              classLabel={className}
+              days={days}
+              lessons={lessonsByClass[className] ?? []}
+              schedule={schedule}
+            />
+          ))}
+        </div>
+      )}
+
+      {run && run.status === "done" && result && !hasSchedule && (
+        <div className="panel" style={{ animationDelay: "0.2s" }}>
+          <div className="hint">Schedule data is empty.</div>
         </div>
       )}
 

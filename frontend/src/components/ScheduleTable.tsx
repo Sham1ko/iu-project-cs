@@ -13,7 +13,7 @@ const renderEntry = (entry: ScheduleEntry | null | undefined) => {
 };
 
 type ScheduleTableProps = {
-  anchorId: string;
+  anchorId?: string;
   classLabel: string;
   days: string[];
   lessons: string[];
