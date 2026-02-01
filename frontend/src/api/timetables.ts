@@ -7,8 +7,21 @@ import type {
   TimetableResultPayload,
 } from "../types/api";
 
-export const generateTimetable = async (datasetId?: number) => {
-  const body = datasetId ? { dataset_id: datasetId } : {};
+export type GenerationParams = {
+  generations?: number;
+};
+
+export const generateTimetable = async (
+  datasetId?: number,
+  params?: GenerationParams
+) => {
+  const body: Record<string, unknown> = {};
+  if (typeof datasetId === "number") {
+    body.dataset_id = datasetId;
+  }
+  if (params && Object.keys(params).length > 0) {
+    body.params = params;
+  }
   return request<GenerationResponse>("/timetables/generate", {
     method: "POST",
     body,
