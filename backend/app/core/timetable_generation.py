@@ -4,36 +4,16 @@ import logging
 import time
 from typing import Any, Dict, Optional
 
-from app.core.export.pdf_exporter import export_schedule_pdf
-from app.core.ga.fitness_metrics import (
+from .export.pdf_exporter import export_schedule_pdf
+from .ga.fitness_metrics import (
     count_teacher_conflicts,
     count_teacher_gaps,
     count_total_lessons,
 )
-from app.core.ga.genetic_scheduler import GeneticScheduler
+from .ga.genetic_scheduler import GeneticScheduler
+from .io.data_service import DataService
 
 logger = logging.getLogger(__name__)
-
-
-class DictDataService:
-    def __init__(self, payload: Dict[str, Any]):
-        self._subjects = payload.get("subjects")
-        self._teachers = payload.get("teachers")
-        self._classes = payload.get("classes")
-
-        if self._subjects is None or self._teachers is None or self._classes is None:
-            raise ValueError(
-                "Dataset payload must include 'subjects', 'teachers', and 'classes'."
-            )
-
-    def load_subjects(self):
-        return self._subjects
-
-    def load_teachers(self):
-        return self._teachers
-
-    def load_classes(self):
-        return self._classes
 
 
 def _apply_ga_config(scheduler: GeneticScheduler, config: Dict[str, Any]) -> None:
@@ -103,7 +83,7 @@ def generate_timetable(
     pdf_title = config.get("pdf_title")
     pdf_filename = config.get("pdf_filename")
 
-    data_service = DictDataService(input_data)
+    data_service = DataService(payload=input_data)
     scheduler = GeneticScheduler(data_service)
     _apply_ga_config(scheduler, config)
 

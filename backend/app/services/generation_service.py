@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 from sqlmodel import Session, select
 
-from app.core_ga_adapter.adapter import generate_timetable
+from app.core.timetable_generation import generate_timetable
 from app.services.run_files import get_runs_dir
 from app.db import session as db_session
 from app.db.models import Dataset, GenerationRun, GenerationStatus, TimetableResult

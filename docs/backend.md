@@ -13,7 +13,7 @@ FastAPI backend that manages timetable generation and persistence.
 - `backend/app/api` API routers
 - `backend/app/services` service layer
 - `backend/app/db` models and session
-- `backend/app/core_ga_adapter` core GA integration
+- `backend/app/core` GA engine + timetable generation
 
 ## Configuration
 
