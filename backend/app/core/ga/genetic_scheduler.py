@@ -1,7 +1,7 @@
 import copy
 import random
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from ..io.data_service import DataService
 
@@ -139,7 +139,11 @@ class GeneticScheduler:
 
         return mutated
 
-    def generate_schedule(self, verbose: bool = True) -> Tuple[Dict, float, int]:
+    def generate_schedule(
+        self,
+        verbose: bool = True,
+        progress_callback: Optional[Callable[[int, int], None]] = None,
+    ) -> Tuple[Dict, float, int]:
         """
         Main genetic algorithm loop.
         Returns: (best_schedule, fitness_score, generation)
@@ -165,6 +169,8 @@ class GeneticScheduler:
 
         # Evolution loop
         for generation in range(self.GENERATIONS):
+            if progress_callback is not None:
+                progress_callback(generation + 1, self.GENERATIONS)
             # Sort by fitness
             population.sort(key=lambda x: x[1], reverse=True)
 

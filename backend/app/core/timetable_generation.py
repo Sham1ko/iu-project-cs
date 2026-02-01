@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from .export.pdf_exporter import export_schedule_pdf
 from .ga.fitness_metrics import (
@@ -75,7 +75,9 @@ def _build_result_payload(
 
 
 def generate_timetable(
-    input_data: Dict[str, Any], config: Optional[Dict[str, Any]] = None
+    input_data: Dict[str, Any],
+    config: Optional[Dict[str, Any]] = None,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
 ) -> Dict[str, Any]:
     config = config or {}
     run_id = config.get("run_id")
@@ -88,7 +90,9 @@ def generate_timetable(
     _apply_ga_config(scheduler, config)
 
     start_time = time.perf_counter()
-    schedule, fitness, generation = scheduler.generate_schedule(verbose=False)
+    schedule, fitness, generation = scheduler.generate_schedule(
+        verbose=False, progress_callback=progress_callback
+    )
     duration = time.perf_counter() - start_time
 
     result = _build_result_payload(schedule, scheduler, fitness, generation)

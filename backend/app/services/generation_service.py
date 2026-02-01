@@ -72,13 +72,31 @@ def run_generation(run_id: int) -> None:
             config["pdf_title"] = f"Schedule - run {run_id}"
             config["pdf_filename"] = f"schedule_{run_id}.pdf"
 
-            start_time = time.perf_counter()
-            result_payload = generate_timetable(dataset.payload, config)
-            duration = time.perf_counter() - start_time
+            last_progress = 5
 
-            run.progress = 90
-            session.add(run)
-            session.commit()
+            def update_progress(generation: int, total: int) -> None:
+                nonlocal last_progress
+                if total <= 0:
+                    return
+                progress = 5 + int((generation / total) * 90)
+                progress = max(5, min(95, progress))
+                if progress <= last_progress:
+                    return
+                last_progress = progress
+                run.progress = progress
+                session.add(run)
+                session.commit()
+
+            start_time = time.perf_counter()
+            result_payload = generate_timetable(
+                dataset.payload, config, progress_callback=update_progress
+            )
+            duration = time.perf_counter() - start_time
+            session.refresh(run)
+            if run.progress < 95:
+                run.progress = 95
+                session.add(run)
+                session.commit()
 
             result = TimetableResult(run_id=run.id, payload=result_payload)
             session.add(result)
