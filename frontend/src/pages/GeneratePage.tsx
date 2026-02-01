@@ -36,6 +36,7 @@ export default function GeneratePage() {
   const disabledButtonClass = `${secondaryButtonClass} pointer-events-none`;
 
   const [datasetId, setDatasetId] = useState("");
+  const [generations, setGenerations] = useState("");
   const [run, setRun] = useState<GenerationRun | null>(null);
   const [result, setResult] = useState<TimetableResultPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -70,10 +71,24 @@ export default function GeneratePage() {
       setError("Dataset id must be a number.");
       return;
     }
+    const generationsValue = generations.trim();
+    const parsedGenerations = generationsValue ? Number(generationsValue) : undefined;
+    if (
+      generationsValue &&
+      (!Number.isFinite(parsedGenerations) ||
+        !Number.isInteger(parsedGenerations) ||
+        parsedGenerations <= 0)
+    ) {
+      setError("Generations must be a positive integer.");
+      return;
+    }
 
     try {
       setIsSubmitting(true);
-      const response = await generateTimetable(parsedId);
+      const response = await generateTimetable(
+        parsedId,
+        parsedGenerations ? { generations: parsedGenerations } : undefined
+      );
       setRun({
         id: response.run_id,
         status: response.status,
@@ -181,7 +196,7 @@ export default function GeneratePage() {
 
       <div className={panelClass} style={{ animationDelay: "0.05s" }}>
         <div className={panelTitleClass}>Run configuration</div>
-        <div className="grid gap-4 items-end md:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="grid gap-4 items-end md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
           <label className="grid gap-2 text-sm">
             <span>Dataset id (optional)</span>
             <input
@@ -189,6 +204,18 @@ export default function GeneratePage() {
               value={datasetId}
               onChange={(event) => setDatasetId(event.target.value)}
               placeholder="Leave empty to use latest dataset"
+            />
+          </label>
+          <label className="grid gap-2 text-sm">
+            <span>Generations (optional)</span>
+            <input
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-strong)] px-3 py-2 text-sm"
+              type="number"
+              min={1}
+              step={1}
+              value={generations}
+              onChange={(event) => setGenerations(event.target.value)}
+              placeholder="Default: 200"
             />
           </label>
           <button
@@ -200,7 +227,7 @@ export default function GeneratePage() {
           </button>
         </div>
         <div className={hintClass}>
-          If empty, backend uses the most recent Dataset.
+          Leave fields empty to use the latest dataset and default GA generations (200).
         </div>
       </div>
 
