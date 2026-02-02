@@ -10,7 +10,8 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const navItems = [
   { to: "/", label: "Generate", end: true },
-  { to: "/datasets", label: "Datasets", end: false },
+  { to: "/datasets", label: "Datasets", end: true },
+  { to: "/datasets/new", label: "New Dataset", end: false },
   { to: "/runs", label: "Runs", end: false },
 ] as const;
 
