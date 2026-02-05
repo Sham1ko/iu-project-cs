@@ -8,6 +8,8 @@ from typing import Any, Dict, Optional
 from sqlmodel import Session, select
 
 from app.core.timetable_generation import generate_timetable
+from app.core.dataset_validation import validate_dataset_payload
+from app.core.ga.genetic_scheduler import GeneticScheduler
 from app.services.run_files import get_runs_dir
 from app.db import session as db_session
 from app.db.models import Dataset, GenerationRun, GenerationStatus, TimetableResult
@@ -63,6 +65,18 @@ def run_generation(run_id: int) -> None:
             dataset = session.get(Dataset, run.dataset_id) if run.dataset_id else None
             if dataset is None:
                 raise ValueError("Dataset not found for run.")
+
+            errors, warnings = validate_dataset_payload(
+                dataset.payload,
+                days_per_week=len(GeneticScheduler.DAYS),
+                lessons_per_day=GeneticScheduler.LESSONS_PER_DAY,
+            )
+            for warning in warnings:
+                logger.warning("Dataset validation warning run_id=%s %s", run_id, warning)
+            if errors:
+                raise ValueError(
+                    "Dataset validation failed: " + "; ".join(errors)
+                )
 
             config: Dict[str, Any] = {}
             if isinstance(run.params, dict):

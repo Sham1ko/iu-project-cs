@@ -17,13 +17,17 @@ def ensure_seed_dataset(session: Session) -> None:
         return
 
     settings = get_settings()
-    data_service = DataService(data_dir=settings.data_dir)
+    excel_file = settings.data_excel_file
+    data_service = DataService(
+        data_dir=settings.data_dir,
+        excel_file=excel_file,
+    )
     payload = {
         "subjects": data_service.load_subjects(),
         "teachers": data_service.load_teachers(),
         "classes": data_service.load_classes(),
         "meta": {
-            "source": "data/*.json",
+            "source": str(excel_file) if excel_file else "data/*.json",
             "teachers_file": data_service.teachers_file,
         },
     }

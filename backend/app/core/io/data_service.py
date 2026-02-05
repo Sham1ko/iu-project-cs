@@ -10,13 +10,25 @@ class DataService:
         self,
         data_dir: str = "data",
         teachers_file: str = "teachers.json",
+        excel_file: Optional[str] = None,
         payload: Optional[Dict[str, Any]] = None,
     ):
         self.data_dir = Path(data_dir)
         self.teachers_file = teachers_file
+        self.excel_file: Optional[Path] = None
         self._subjects: Optional[List[Dict[str, Any]]] = None
         self._teachers: Optional[List[Dict[str, Any]]] = None
         self._classes: Optional[List[Dict[str, Any]]] = None
+
+        if excel_file:
+            excel_path = Path(excel_file)
+            if not excel_path.is_absolute():
+                excel_path = self.data_dir / excel_path
+            self.excel_file = excel_path
+        else:
+            default_excel = self.data_dir / "dataset.xlsx"
+            if default_excel.exists():
+                self.excel_file = default_excel
 
         if payload is not None:
             self._subjects = payload.get("subjects")
@@ -30,6 +42,15 @@ class DataService:
                 raise ValueError(
                     "Dataset payload must include 'subjects', 'teachers', and 'classes'."
                 )
+        elif self.excel_file is not None:
+            from .excel_loader import load_dataset_from_excel
+
+            if not self.excel_file.exists():
+                raise FileNotFoundError(f"Excel dataset not found: {self.excel_file}")
+            dataset = load_dataset_from_excel(self.excel_file)
+            self._subjects = dataset["subjects"]
+            self._teachers = dataset["teachers"]
+            self._classes = dataset["classes"]
     
     def load_subjects(self) -> List[Dict[str, Any]]:
         """Load list of subjects"""
