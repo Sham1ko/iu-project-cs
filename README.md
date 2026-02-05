@@ -93,6 +93,7 @@ Repo `.env` (root):
 - or `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD`
 - `DATA_DIR` (optional path to `data/`, defaults to `./data`; update the
   Windows example if you copy `.env.example`)
+- `DATA_EXCEL_FILE` (optional `.xlsx` dataset file; see `docs/EXCEL_INPUT.md`)
 - `VITE_API_BASE_URL` (example: `http://localhost:8000`)
 
 ## API endpoints

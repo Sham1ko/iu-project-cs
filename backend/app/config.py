@@ -32,6 +32,7 @@ class Settings(BaseSettings):
 
     database_url: str | None = None
     data_dir: str = Field(default_factory=_default_data_dir)
+    data_excel_file: str | None = None
 
     db_host: str = "localhost"
     db_port: int = 5432
