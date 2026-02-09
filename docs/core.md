@@ -21,7 +21,7 @@ following core libraries:
 - psycopg: PostgreSQL driver.
 - Uvicorn: ASGI server for local development.
 - ReportLab: PDF generation for schedules.
-- openpyxl: Excel (`.xlsx`) dataset ingestion.
+- openpyxl: Excel dataset ingestion (`.xlsx`).
 
 ## How it is called
 
