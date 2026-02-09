@@ -1,17 +1,22 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../api/client";
-import { createDataset, listDatasets } from "../api/datasets";
+import {
+  downloadDatasetExcel,
+  listDatasets,
+  uploadDatasetExcel,
+} from "../api/datasets";
 import type { Dataset } from "../types/api";
 import { formatDateTime } from "../utils/format";
-import { safeJsonParse } from "../utils/json";
 
 export default function DatasetsPage() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [payload, setPayload] = useState("{}");
   const [createError, setCreateError] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   const loadDatasets = async () => {
     try {
@@ -40,20 +45,47 @@ export default function DatasetsPage() {
       return;
     }
 
-    const parsed = safeJsonParse(payload);
-    if (!parsed.ok) {
-      setCreateError(parsed.error);
+    if (!file) {
+      setCreateError("Please select an .xlsx file.");
+      return;
+    }
+
+    const lowered = file.name.toLowerCase();
+    if (!lowered.endsWith(".xlsx")) {
+      setCreateError("Only .xlsx files are supported.");
       return;
     }
 
     try {
-      await createDataset({ name: name.trim(), payload: parsed.value });
+      await uploadDatasetExcel(name.trim(), file);
       setName("");
-      setPayload("{}");
+      setFile(null);
       loadDatasets();
     } catch (err) {
       const message = err instanceof ApiError ? err.message : "Failed to create dataset.";
       setCreateError(message);
+    }
+  };
+
+  const handleDownload = async (dataset: Dataset) => {
+    try {
+      setDownloadError(null);
+      setDownloadingId(dataset.id);
+      const blob = await downloadDatasetExcel(dataset.id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `dataset_${dataset.id}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "Failed to download dataset.";
+      setDownloadError(message);
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -78,16 +110,16 @@ export default function DatasetsPage() {
             />
           </label>
           <label className="field">
-            <span>Payload (JSON)</span>
-            <textarea
-              rows={6}
-              value={payload}
-              onChange={(event) => setPayload(event.target.value)}
+            <span>Dataset file (.xlsx)</span>
+            <input
+              type="file"
+              accept=".xlsx"
+              onChange={(event) => setFile(event.target.files?.[0] || null)}
             />
           </label>
           {createError && <div className="inline-error">{createError}</div>}
           <button className="primary" type="submit">
-            Create dataset
+            Upload dataset
           </button>
         </form>
       </div>
@@ -95,6 +127,7 @@ export default function DatasetsPage() {
       <div className="panel" style={{ animationDelay: "0.1s" }}>
         <div className="panel-title">Available datasets</div>
         {error && <div className="inline-error">{error}</div>}
+        {downloadError && <div className="inline-error">{downloadError}</div>}
         {isLoading ? (
           <div className="hint">Loading datasets...</div>
         ) : datasets.length === 0 ? (
@@ -105,12 +138,23 @@ export default function DatasetsPage() {
               <span>ID</span>
               <span>Name</span>
               <span>Created</span>
+              <span>Actions</span>
             </div>
             {datasets.map((dataset) => (
               <div className="table-row" key={dataset.id}>
                 <span>{dataset.id}</span>
                 <span>{dataset.name}</span>
                 <span>{formatDateTime(dataset.created_at)}</span>
+                <span>
+                  <button
+                    className="secondary"
+                    type="button"
+                    onClick={() => handleDownload(dataset)}
+                    disabled={downloadingId === dataset.id}
+                  >
+                    {downloadingId === dataset.id ? "Downloading..." : "Download"}
+                  </button>
+                </span>
               </div>
             ))}
           </div>

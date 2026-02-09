@@ -4,6 +4,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
+from io import BytesIO
+
 from openpyxl import load_workbook
 
 
@@ -299,9 +301,7 @@ def _parse_matrix_format(workbook) -> Dict[str, List[Dict[str, Any]]]:
     }
 
 
-def load_dataset_from_excel(path: Path) -> Dict[str, List[Dict[str, Any]]]:
-    workbook = load_workbook(filename=path, data_only=True)
-
+def _load_dataset_from_workbook(workbook) -> Dict[str, List[Dict[str, Any]]]:
     subjects_ws = _find_sheet(workbook, "subjects")
     classes_ws = _find_sheet(workbook, "classes")
     teachers_ws = _find_sheet(workbook, "teachers")
@@ -326,3 +326,15 @@ def load_dataset_from_excel(path: Path) -> Dict[str, List[Dict[str, Any]]]:
         "Excel file must contain either sheets named: subjects, classes, teachers "
         "or the matrix format with an 'hours' sheet and subject sheets."
     )
+
+
+def load_dataset_from_excel(path: Path) -> Dict[str, List[Dict[str, Any]]]:
+    workbook = load_workbook(filename=path, data_only=True)
+    return _load_dataset_from_workbook(workbook)
+
+
+def load_dataset_from_excel_bytes(data: bytes) -> Dict[str, List[Dict[str, Any]]]:
+    workbook = load_workbook(filename=BytesIO(data), data_only=True)
+    return _load_dataset_from_workbook(workbook)
+
+    # handled in _load_dataset_from_workbook
