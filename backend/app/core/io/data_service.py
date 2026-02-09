@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -20,16 +19,6 @@ class DataService:
         self._teachers: Optional[List[Dict[str, Any]]] = None
         self._classes: Optional[List[Dict[str, Any]]] = None
 
-        if excel_file:
-            excel_path = Path(excel_file)
-            if not excel_path.is_absolute():
-                excel_path = self.data_dir / excel_path
-            self.excel_file = excel_path
-        else:
-            default_excel = self.data_dir / "dataset.xlsx"
-            if default_excel.exists():
-                self.excel_file = default_excel
-
         if payload is not None:
             self._subjects = payload.get("subjects")
             self._teachers = payload.get("teachers")
@@ -42,11 +31,24 @@ class DataService:
                 raise ValueError(
                     "Dataset payload must include 'subjects', 'teachers', and 'classes'."
                 )
-        elif self.excel_file is not None:
+            return
+
+        if not excel_file:
+            excel_file = "dataset.xlsx"
+
+        excel_path = Path(excel_file)
+        if not excel_path.is_absolute():
+            excel_path = self.data_dir / excel_path
+        self.excel_file = excel_path
+
+        if self.excel_file is not None:
             from .excel_loader import load_dataset_from_excel
 
             if not self.excel_file.exists():
-                raise FileNotFoundError(f"Excel dataset not found: {self.excel_file}")
+                raise FileNotFoundError(
+                    f"Excel dataset not found: {self.excel_file}. "
+                    "Provide DATA_EXCEL_FILE or place dataset.xlsx in DATA_DIR."
+                )
             dataset = load_dataset_from_excel(self.excel_file)
             self._subjects = dataset["subjects"]
             self._teachers = dataset["teachers"]
@@ -56,25 +58,19 @@ class DataService:
         """Load list of subjects"""
         if self._subjects is not None:
             return self._subjects
-        with open(self.data_dir / "subjects.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data["subjects"]
+        raise ValueError("Subjects not loaded. Provide Excel dataset or payload.")
     
     def load_teachers(self) -> List[Dict[str, Any]]:
         """Load list of teachers"""
         if self._teachers is not None:
             return self._teachers
-        with open(self.data_dir / self.teachers_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data["teachers"]
+        raise ValueError("Teachers not loaded. Provide Excel dataset or payload.")
     
     def load_classes(self) -> List[Dict[str, Any]]:
         """Load list of classes"""
         if self._classes is not None:
             return self._classes
-        with open(self.data_dir / "classes.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data["classes"]
+        raise ValueError("Classes not loaded. Provide Excel dataset or payload.")
     
     def get_subject_by_id(self, subject_id: int) -> Dict[str, Any] | None:
         """Get subject by ID"""
