@@ -11,6 +11,7 @@ _SHEET_ALIASES = {
     "subjects": ("subjects", "subject"),
     "teachers": ("teachers", "teacher"),
     "classes": ("classes", "class"),
+    "hours": ("hours", "hour"),
 }
 
 
@@ -47,6 +48,14 @@ def _find_sheet(workbook, kind: str):
     for sheet_name in workbook.sheetnames:
         normalized = sheet_name.strip().lower()
         if normalized in aliases:
+            return workbook[sheet_name]
+    return None
+
+
+def _find_sheet_by_name(workbook, target: str):
+    target_norm = target.strip().lower()
+    for sheet_name in workbook.sheetnames:
+        if sheet_name.strip().lower() == target_norm:
             return workbook[sheet_name]
     return None
 
@@ -187,6 +196,109 @@ def _parse_teachers(
     return teachers
 
 
+def _parse_hours_sheet(hours_ws) -> tuple[List[Dict[str, Any]], List[int]]:
+    rows = list(hours_ws.iter_rows(values_only=True))
+    if not rows:
+        raise ValueError("Excel sheet 'hours' is empty.")
+
+    header = list(rows[0])
+    grade_headers: List[int] = []
+    for cell in header[1:]:
+        grade = _parse_optional_int(cell)
+        if grade is None:
+            continue
+        grade_headers.append(grade)
+
+    if not grade_headers:
+        raise ValueError("Excel sheet 'hours' must define grade headers in row 1.")
+
+    subjects: List[Dict[str, Any]] = []
+    next_id = 1
+    for row in rows[1:]:
+        if not row or (row[0] is None or str(row[0]).strip() == ""):
+            continue
+        name = str(row[0]).strip()
+        hours_by_grade: Dict[int, int] = {}
+        for idx, grade in enumerate(grade_headers, start=1):
+            value = row[idx] if idx < len(row) else None
+            hours = _parse_optional_int(value)
+            if hours is None:
+                continue
+            hours_by_grade[int(grade)] = int(hours)
+        subject = {"id": next_id, "name": name, "weekly_hours_by_grade": hours_by_grade}
+        if hours_by_grade and len(set(hours_by_grade.values())) == 1:
+            subject["weekly_hours"] = next(iter(hours_by_grade.values()))
+        subjects.append(subject)
+        next_id += 1
+    return subjects, grade_headers
+
+
+def _parse_matrix_format(workbook) -> Dict[str, List[Dict[str, Any]]]:
+    hours_ws = _find_sheet(workbook, "hours")
+    if hours_ws is None:
+        raise ValueError("Excel file does not contain required 'hours' sheet.")
+
+    subjects, _ = _parse_hours_sheet(hours_ws)
+    subject_name_to_id = {s["name"].lower(): s["id"] for s in subjects}
+
+    classes_map: Dict[str, Dict[str, Any]] = {}
+    teachers_map: Dict[str, Dict[str, Any]] = {}
+
+    for subject in subjects:
+        subject_name = subject["name"]
+        subject_ws = _find_sheet_by_name(workbook, subject_name)
+        if subject_ws is None:
+            continue
+
+        rows = list(subject_ws.iter_rows(values_only=True))
+        if not rows:
+            continue
+
+        header = rows[0]
+        class_names = []
+        for cell in header[1:]:
+            if cell is None or str(cell).strip() == "":
+                continue
+            class_name = str(cell).strip()
+            class_names.append(class_name)
+            if class_name not in classes_map:
+                match = re.match(r"^(\\d+)", class_name)
+                if not match:
+                    raise ValueError(
+                        f"Class '{class_name}' must start with a numeric grade (e.g., 9A)."
+                    )
+                grade = int(match.group(1))
+                classes_map[class_name] = {
+                    "id": len(classes_map) + 1,
+                    "name": class_name,
+                    "grade": grade,
+                }
+
+        for row in rows[1:]:
+            if not row:
+                continue
+            teacher_name = row[0]
+            if teacher_name is None or str(teacher_name).strip() == "":
+                continue
+            teacher_name = str(teacher_name).strip()
+            if teacher_name not in teachers_map:
+                teachers_map[teacher_name] = {
+                    "id": len(teachers_map) + 1,
+                    "name": teacher_name,
+                    "subjects": [],
+                }
+            teacher_entry = teachers_map[teacher_name]
+            subject_id = subject_name_to_id[subject_name.lower()]
+            if subject_id not in teacher_entry["subjects"]:
+                teacher_entry["subjects"].append(subject_id)
+
+    return {
+        "subjects": subjects,
+        "classes": list(classes_map.values()),
+        "teachers": list(teachers_map.values()),
+    }
+
+
 def load_dataset_from_excel(path: Path) -> Dict[str, List[Dict[str, Any]]]:
     workbook = load_workbook(filename=path, data_only=True)
 
@@ -194,28 +306,23 @@ def load_dataset_from_excel(path: Path) -> Dict[str, List[Dict[str, Any]]]:
     classes_ws = _find_sheet(workbook, "classes")
     teachers_ws = _find_sheet(workbook, "teachers")
 
-    missing_sheets = [
-        name
-        for name, ws in (
-            ("subjects", subjects_ws),
-            ("classes", classes_ws),
-            ("teachers", teachers_ws),
-        )
-        if ws is None
-    ]
-    if missing_sheets:
-        raise ValueError(
-            "Excel file must contain sheets named: subjects, classes, teachers. "
-            f"Missing: {', '.join(missing_sheets)}."
-        )
+    if subjects_ws and classes_ws and teachers_ws:
+        subjects_rows = _iter_rows(subjects_ws)
+        classes_rows = _iter_rows(classes_ws)
+        teachers_rows = _iter_rows(teachers_ws)
 
-    subjects_rows = _iter_rows(subjects_ws)
-    classes_rows = _iter_rows(classes_ws)
-    teachers_rows = _iter_rows(teachers_ws)
+        subjects = _parse_subjects(subjects_rows)
+        classes = _parse_classes(classes_rows)
+        subject_name_to_id = {s["name"].lower(): s["id"] for s in subjects}
+        teachers = _parse_teachers(teachers_rows, subject_name_to_id)
 
-    subjects = _parse_subjects(subjects_rows)
-    classes = _parse_classes(classes_rows)
-    subject_name_to_id = {s["name"].lower(): s["id"] for s in subjects}
-    teachers = _parse_teachers(teachers_rows, subject_name_to_id)
+        return {"subjects": subjects, "classes": classes, "teachers": teachers}
 
-    return {"subjects": subjects, "classes": classes, "teachers": teachers}
+    hours_ws = _find_sheet(workbook, "hours")
+    if hours_ws is not None:
+        return _parse_matrix_format(workbook)
+
+    raise ValueError(
+        "Excel file must contain either sheets named: subjects, classes, teachers "
+        "or the matrix format with an 'hours' sheet and subject sheets."
+    )

@@ -154,17 +154,47 @@ def validate_dataset_payload(
 
     # Curriculum hours validation (optional)
     subject_hours: Dict[int, int] = {}
+    subject_hours_by_grade: Dict[int, Dict[int, int]] = {}
     used_hour_keys: set[str] = set()
     has_hours_column = False
+
     for subject in subjects:
+        subject_id = _coerce_int(subject.get("id"))
+        if subject_id is None:
+            continue
+
+        hours_by_grade = subject.get("weekly_hours_by_grade")
+        if isinstance(hours_by_grade, dict) and hours_by_grade:
+            has_hours_column = True
+            parsed: Dict[int, int] = {}
+            for grade_key, value in hours_by_grade.items():
+                grade = _coerce_int(grade_key)
+                hours = _coerce_int(value)
+                if grade is None:
+                    errors.append(
+                        f"Subject '{subject.get('name', subject_id)}' has invalid grade key {grade_key}."
+                    )
+                    continue
+                if hours is None:
+                    errors.append(
+                        f"Subject '{subject.get('name', subject_id)}' has empty curriculum hours for grade {grade}."
+                    )
+                    continue
+                if hours <= 0:
+                    errors.append(
+                        f"Subject '{subject.get('name', subject_id)}' has invalid hours {hours} for grade {grade}."
+                    )
+                    continue
+                parsed[int(grade)] = int(hours)
+            if parsed:
+                subject_hours_by_grade[subject_id] = parsed
+            continue
+
         present, hours, key = _extract_subject_hours(subject)
         if present:
             has_hours_column = True
             if key:
                 used_hour_keys.add(key)
-        subject_id = _coerce_int(subject.get("id"))
-        if subject_id is None:
-            continue
         if present:
             if hours is None:
                 errors.append(
@@ -187,13 +217,27 @@ def validate_dataset_payload(
         )
 
     # Workload feasibility (only strict if hours provided)
-    if subject_hours and classes:
+    if (subject_hours or subject_hours_by_grade) and classes:
         total_slots = days_per_week * lessons_per_day
+        classes_by_grade: Dict[int, int] = defaultdict(int)
+        for cls in classes:
+            grade = _coerce_int(cls.get("grade"))
+            if grade is None:
+                continue
+            classes_by_grade[int(grade)] += 1
+
         for subject in subjects:
             subject_id = _coerce_int(subject.get("id"))
-            if subject_id is None or subject_id not in subject_hours:
+            if subject_id is None:
                 continue
-            demand = subject_hours[subject_id] * len(classes)
+            if subject_id in subject_hours_by_grade:
+                demand = 0
+                for grade, hours in subject_hours_by_grade[subject_id].items():
+                    demand += hours * classes_by_grade.get(int(grade), 0)
+            elif subject_id in subject_hours:
+                demand = subject_hours[subject_id] * len(classes)
+            else:
+                continue
             qualified_teachers = teachers_per_subject.get(subject_id, [])
             if not qualified_teachers:
                 continue
