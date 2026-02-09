@@ -132,6 +132,39 @@ curl -s http://localhost:8000/api/v1/timetables/runs/1/result
 PYTHONPATH=backend python -m app.core.main
 ```
 
+## Tests
+
+Install dependencies:
+
+```
+pip install -r backend/requirements.txt
+```
+
+Run unit tests:
+
+```
+python -m pytest backend/tests
+```
+
+Run a single test file:
+
+```
+python -m pytest backend/tests/test_dataset_validation.py
+```
+
+Run the benchmark script (performance testing):
+
+```
+/opt/homebrew/opt/python@3.11/bin/python3.11 backend/scripts/benchmark.py \
+  --excel data/dataset.xlsx \
+  --runs 5 \
+  --generations 200 \
+  --population 50 \
+  --mutation 0.1 \
+  --tournament 5 \
+  --out benchmarks/benchmark_results.csv
+```
+
 ## Docs
 
 - `docs/architecture.md`
