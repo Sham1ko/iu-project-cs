@@ -1,26 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ApiError } from "../api/client";
 import {
   deleteRunPdf,
   generateTimetable,
-  getRunPdfUrl,
   getRunResult,
   getRunStatus,
 } from "../api/timetables";
-import { listDatasets } from "../api/datasets";
-import ScheduleTable from "../components/ScheduleTable";
-import StatusBadge from "../components/StatusBadge";
-import type { Dataset, GenerationRun, ScheduleByDay, TimetableResultPayload } from "../types/api";
-import { formatDateTime } from "../utils/format";
-import { collectClassNames, collectLessonsForClass, getScheduleDays } from "../utils/schedule";
-import { Progress } from "@/components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import RunConfiguration from "../components/RunConfiguration";
+import RunStatusResult from "../components/RunStatusResult";
+import type { GenerationRun, TimetableResultPayload } from "../types/api";
 
 const POLL_INTERVAL_MS = 1500;
 
@@ -39,7 +27,6 @@ export default function GeneratePage() {
     "inline-flex min-w-[110px] items-center justify-center rounded-[10px] border border-[rgba(185,28,28,0.35)] bg-[rgba(185,28,28,0.1)] px-3.5 py-2.5 text-sm font-medium text-[var(--error)] transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(185,28,28,0.4)] disabled:cursor-not-allowed disabled:opacity-60";
   const disabledButtonClass = `${secondaryButtonClass} pointer-events-none`;
 
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [datasetId, setDatasetId] = useState("");
   const [generations, setGenerations] = useState("");
   const [lastSubmittedGenerations, setLastSubmittedGenerations] = useState<number | null>(null);
@@ -50,88 +37,6 @@ export default function GeneratePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [pdfDeleted, setPdfDeleted] = useState(false);
-
-  useEffect(() => {
-    const loadDatasets = async () => {
-      try {
-        const data = await listDatasets();
-        setDatasets(data);
-      } catch (err) {
-        console.error("Failed to load datasets:", err);
-      }
-    };
-    loadDatasets();
-  }, []);
-
-  const schedule = (result?.schedule ?? {}) as ScheduleByDay;
-  const days = useMemo(() => getScheduleDays(schedule), [schedule]);
-  const classNames = useMemo(() => collectClassNames(schedule), [schedule]);
-  const lessonsByClass = useMemo(() => {
-    const map: Record<string, string[]> = {};
-    for (const className of classNames) {
-      map[className] = collectLessonsForClass(schedule, className, days);
-    }
-    return map;
-  }, [classNames, days, schedule]);
-  const hasSchedule =
-    classNames.length > 0 &&
-    classNames.some((className) => (lessonsByClass[className]?.length ?? 0) > 0);
-
-  const formatDuration = (seconds: number) => {
-    if (!Number.isFinite(seconds) || seconds < 0) {
-      return "-";
-    }
-    const rounded = Math.round(seconds);
-    if (rounded < 60) {
-      return `${rounded}s`;
-    }
-    const minutes = Math.floor(rounded / 60);
-    const remainingSeconds = rounded % 60;
-    if (minutes < 60) {
-      return `${minutes}m ${remainingSeconds}s`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}h ${remainingMinutes}m`;
-  };
-
-  const generationsFromRun = useMemo(() => {
-    const params = run?.params as Record<string, unknown> | undefined;
-    const rawValue = params?.generations;
-    const numericValue =
-      typeof rawValue === "number"
-        ? rawValue
-        : typeof rawValue === "string"
-          ? Number(rawValue)
-          : undefined;
-    if (!Number.isFinite(numericValue) || !numericValue) {
-      return null;
-    }
-    return numericValue;
-  }, [run?.params]);
-
-  const generationsDisplay = generationsFromRun ?? lastSubmittedGenerations;
-  const generationsValueLabel = generationsDisplay ? `${generationsDisplay}` : "Default (200)";
-
-  const startedAt = run?.started_at ? new Date(run.started_at) : null;
-  const finishedAt = run?.finished_at ? new Date(run.finished_at) : null;
-  const durationSeconds =
-    startedAt && finishedAt ? (finishedAt.getTime() - startedAt.getTime()) / 1000 : null;
-
-  const finishedValue = () => {
-    if (!run) {
-      return "-";
-    }
-    if (run.status === "running") {
-      return formatDateTime(run.finished_at);
-    }
-    if (run.status === "done") {
-      const finishedLabel = formatDateTime(run.finished_at);
-      const durationLabel = durationSeconds ? ` (${formatDuration(durationSeconds)})` : "";
-      return `${finishedLabel}${durationLabel}`;
-    }
-    return formatDateTime(run.finished_at);
-  };
 
   const handleGenerate = async () => {
     setError(null);
@@ -182,9 +87,7 @@ export default function GeneratePage() {
   };
 
   const handleDeletePdf = async () => {
-    if (!run?.id) {
-      return;
-    }
+    if (!run?.id) return;
     setError(null);
     setInfo(null);
     setIsDeleting(true);
@@ -201,9 +104,7 @@ export default function GeneratePage() {
   };
 
   useEffect(() => {
-    if (!run?.id) {
-      return;
-    }
+    if (!run?.id) return;
 
     let active = true;
     let intervalId: number | undefined;
@@ -211,9 +112,7 @@ export default function GeneratePage() {
     const poll = async () => {
       try {
         const status = await getRunStatus(run.id);
-        if (!active) {
-          return;
-        }
+        if (!active) return;
         setRun(status);
 
         if (status.status === "done") {
@@ -222,30 +121,22 @@ export default function GeneratePage() {
             setResult(payload);
             setInfo("Result is ready.");
           }
-          if (intervalId) {
-            clearInterval(intervalId);
-          }
+          if (intervalId) clearInterval(intervalId);
         }
 
         if (status.status === "failed") {
           setInfo(null);
-          if (intervalId) {
-            clearInterval(intervalId);
-          }
+          if (intervalId) clearInterval(intervalId);
         }
       } catch (err) {
-        if (!active) {
-          return;
-        }
+        if (!active) return;
         const apiError = err instanceof ApiError ? err : null;
         if (apiError?.status === 409) {
           setInfo("Result not ready yet.");
           return;
         }
         setError(apiError?.message ?? "Failed to fetch status.");
-        if (intervalId) {
-          clearInterval(intervalId);
-        }
+        if (intervalId) clearInterval(intervalId);
       }
     };
 
@@ -254,9 +145,7 @@ export default function GeneratePage() {
 
     return () => {
       active = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      if (intervalId) clearInterval(intervalId);
     };
   }, [run?.id]);
 
@@ -269,44 +158,18 @@ export default function GeneratePage() {
         </div>
       </div>
 
-      <div className={panelClass} style={{ animationDelay: "0.05s" }}>
-        <div className={panelTitleClass}>Run configuration</div>
-        <div className="grid gap-4 items-end md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
-          <label className="grid gap-2 text-sm">
-            <span>Dataset (optional)</span>
-            <Select value={datasetId || undefined} onValueChange={(value) => setDatasetId(value || "")}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Latest dataset" />
-              </SelectTrigger>
-              <SelectContent>
-                {datasets.map((dataset) => (
-                  <SelectItem key={dataset.id} value={String(dataset.id)}>
-                    {dataset.id} - {dataset.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </label>
-          <label className="grid gap-2 text-sm">
-            <span>Generations (optional)</span>
-            <input
-              className="w-full rounded-xl border border-border bg-(--surface-strong) px-3 py-2 text-sm"
-              type="number"
-              min={1}
-              step={1}
-              value={generations}
-              onChange={(event) => setGenerations(event.target.value)}
-              placeholder="Default: 200"
-            />
-          </label>
-          <button className={primaryButtonClass} onClick={handleGenerate} disabled={isSubmitting}>
-            {isSubmitting ? "Starting..." : "Generate timetable"}
-          </button>
-        </div>
-        <div className={hintClass}>
-          Select a dataset or use the latest one, and set generations (default: 200).
-        </div>
-      </div>
+      <RunConfiguration
+        datasetId={datasetId}
+        generations={generations}
+        isSubmitting={isSubmitting}
+        onDatasetIdChange={setDatasetId}
+        onGenerationsChange={setGenerations}
+        onGenerate={handleGenerate}
+        panelClass={panelClass}
+        panelTitleClass={panelTitleClass}
+        hintClass={hintClass}
+        primaryButtonClass={primaryButtonClass}
+      />
 
       {(error || info) && (
         <div
@@ -321,113 +184,22 @@ export default function GeneratePage() {
       )}
 
       {run && (
-        <div className={panelClass} style={{ animationDelay: "0.1s" }}>
-          <div className={panelTitleClass}>Run status</div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <div className={labelClass}>Run id</div>
-              <div className={valueClass}>{run.id}</div>
-            </div>
-            <div>
-              <div className={labelClass}>Status</div>
-              <StatusBadge status={run.status} />
-            </div>
-            <div>
-              <div className={labelClass}>Progress</div>
-              <div className={valueClass}>{run.progress}%</div>
-              <Progress value={run.progress} className="mt-2 w-full" />
-            </div>
-            <div>
-              <div className={labelClass}>Generations</div>
-              <div className={valueClass}>{generationsValueLabel}</div>
-            </div>
-            <div>
-              <div className={labelClass}>Started</div>
-              <div className={valueClass}>{formatDateTime(run.started_at)}</div>
-            </div>
-            <div>
-              <div className={labelClass}>Finished</div>
-              <div className={valueClass}>{finishedValue()}</div>
-            </div>
-          </div>
-
-          {run.status === "failed" && (
-            <div className="mt-3 font-semibold text-(--error)">
-              {run.error_message || "Run failed. Check backend logs."}
-            </div>
-          )}
-        </div>
-      )}
-
-      {run && run.status === "done" && result && (
-        <div className={panelClass} style={{ animationDelay: "0.15s" }}>
-          <div className={panelTitleClass}>Result file</div>
-          <div className="flex flex-col gap-4 rounded-2xl border border-border bg-(--surface-strong) p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="grid gap-1">
-              <div className="font-semibold">{`schedule_${run.id}.pdf`}</div>
-              <div className="text-sm text-muted">
-                Generated: {formatDateTime(run.finished_at || run.created_at)}
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {pdfDeleted ? (
-                <span className={disabledButtonClass}>Download</span>
-              ) : (
-                <a
-                  className={secondaryButtonClass}
-                  href={getRunPdfUrl(run.id)}
-                  target="_blank"
-                  rel="noreferrer"
-                  download
-                >
-                  Download
-                </a>
-              )}
-              <button
-                className={dangerButtonClass}
-                onClick={handleDeletePdf}
-                disabled={isDeleting || pdfDeleted}
-              >
-                {pdfDeleted ? "Deleted" : isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-          {pdfDeleted && <div className={hintClass}>PDF has been deleted.</div>}
-        </div>
-      )}
-
-      {run && run.status === "done" && result && (
-        <div className={panelClass} style={{ animationDelay: "0.18s" }}>
-          <div className={panelTitleClass}>Schedule preview</div>
-          <div className={hintClass}>Per-class timetable for Monday to Friday.</div>
-        </div>
-      )}
-
-      {run && run.status === "done" && result && hasSchedule && (
-        <div className="grid gap-5" style={{ animationDelay: "0.2s" }}>
-          {classNames.map((className) => (
-            <ScheduleTable
-              key={className}
-              classLabel={className}
-              days={days}
-              lessons={lessonsByClass[className] ?? []}
-              schedule={schedule}
-            />
-          ))}
-        </div>
-      )}
-
-      {run && run.status === "done" && result && !hasSchedule && (
-        <div className={panelClass} style={{ animationDelay: "0.2s" }}>
-          <div className={hintClass}>Schedule data is empty.</div>
-        </div>
-      )}
-
-      {run && run.status === "done" && !result && (
-        <div className={panelClass} style={{ animationDelay: "0.15s" }}>
-          <div className={panelTitleClass}>Result file</div>
-          <div className={hintClass}>Not ready yet. Polling continues.</div>
-        </div>
+        <RunStatusResult
+          run={run}
+          result={result}
+          lastSubmittedGenerations={lastSubmittedGenerations}
+          pdfDeleted={pdfDeleted}
+          isDeleting={isDeleting}
+          onDeletePdf={handleDeletePdf}
+          panelClass={panelClass}
+          panelTitleClass={panelTitleClass}
+          hintClass={hintClass}
+          labelClass={labelClass}
+          valueClass={valueClass}
+          secondaryButtonClass={secondaryButtonClass}
+          dangerButtonClass={dangerButtonClass}
+          disabledButtonClass={disabledButtonClass}
+        />
       )}
     </section>
   );
