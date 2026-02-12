@@ -32,6 +32,12 @@ def _coerce_int(value: Any) -> int | None:
         return None
 
 
+def _normalize_class_name(value: Any) -> str:
+    text = "" if value is None else str(value)
+    text = re.sub(r"\s+", "", text.strip())
+    return text.lower()
+
+
 def _check_duplicate_ids(
     items: Iterable[Dict[str, Any]], label: str, errors: List[str]
 ) -> None:
@@ -87,6 +93,65 @@ def _extract_teacher_max_hours(teacher: Dict[str, Any]) -> int | None:
     return None
 
 
+def _parse_teacher_groups(
+    teacher: Dict[str, Any],
+    *,
+    class_id_by_name: Dict[str, int],
+    errors: List[str],
+) -> set[int] | None:
+    groups = teacher.get("groups")
+    if not isinstance(groups, list) or not groups:
+        return None
+
+    allowed: set[int] = set()
+    for group in groups:
+        class_id = _coerce_int(group)
+        if class_id is not None:
+            allowed.add(class_id)
+            continue
+        class_name = _normalize_class_name(group)
+        if class_name in class_id_by_name:
+            allowed.add(class_id_by_name[class_name])
+            continue
+        errors.append(
+            f"Teacher '{teacher.get('name', 'unknown')}' references unknown group '{group}'."
+        )
+    return allowed
+
+
+def _required_classes_for_subject(
+    subject_id: int,
+    *,
+    class_ids: set[int],
+    class_by_id: Dict[int, Dict[str, Any]],
+    subject_hours: Dict[int, int],
+    subject_hours_by_grade: Dict[int, Dict[int, int]],
+    subject_hours_by_class: Dict[int, Dict[int, int]],
+) -> set[int]:
+    if subject_id in subject_hours_by_class:
+        return {
+            class_id
+            for class_id, hours in subject_hours_by_class[subject_id].items()
+            if hours > 0
+        }
+    if subject_id in subject_hours_by_grade:
+        required: set[int] = set()
+        by_grade = subject_hours_by_grade[subject_id]
+        for class_id in class_ids:
+            cls = class_by_id.get(class_id)
+            if cls is None:
+                continue
+            grade = _coerce_int(cls.get("grade"))
+            if grade is None:
+                continue
+            if by_grade.get(int(grade), 0) > 0:
+                required.add(class_id)
+        return required
+    if subject_id in subject_hours:
+        return set(class_ids)
+    return set(class_ids)
+
+
 def validate_dataset_payload(
     payload: Dict[str, Any],
     *,
@@ -114,8 +179,28 @@ def validate_dataset_payload(
     _check_duplicate_names(teachers, "Teacher", errors, warnings)
     _check_duplicate_names(classes, "Class", errors, warnings)
 
+    class_by_id: Dict[int, Dict[str, Any]] = {}
+    class_id_by_name: Dict[str, int] = {}
+    class_ids: set[int] = set()
+
     # Validate class grades
     for cls in classes:
+        class_id = _coerce_int(cls.get("id"))
+        if class_id is not None:
+            class_by_id[class_id] = cls
+            class_ids.add(class_id)
+
+        class_name = cls.get("name")
+        if class_name is not None and str(class_name).strip():
+            normalized = _normalize_class_name(class_name)
+            if normalized:
+                if normalized in class_id_by_name:
+                    warnings.append(
+                        f"Class name '{class_name}' is duplicated in normalized form."
+                    )
+                elif class_id is not None:
+                    class_id_by_name[normalized] = class_id
+
         grade = _coerce_int(cls.get("grade"))
         if grade is None:
             errors.append(f"Class '{cls.get('name', 'unknown')}' has invalid grade.")
@@ -129,13 +214,25 @@ def validate_dataset_payload(
                 f"Class '{cls.get('name', 'unknown')}' has atypical grade {grade}."
             )
 
-    # Teacher coverage per subject (required subjects assumed to be all subjects)
-    teachers_per_subject: defaultdict[int, List[Dict[str, Any]]] = defaultdict(list)
-    for teacher in teachers:
+    teacher_subject_ids: Dict[int, set[int]] = {}
+    teacher_allowed_classes: Dict[int, set[int] | None] = {}
+
+    for idx, teacher in enumerate(teachers):
+        subject_set: set[int] = set()
         for subject_id in teacher.get("subjects", []) or []:
             subject_id_int = _coerce_int(subject_id)
             if subject_id_int is not None:
-                teachers_per_subject[subject_id_int].append(teacher)
+                subject_set.add(subject_id_int)
+        teacher_subject_ids[idx] = subject_set
+        teacher_allowed_classes[idx] = _parse_teacher_groups(
+            teacher, class_id_by_name=class_id_by_name, errors=errors
+        )
+
+    # Teacher coverage per subject
+    teachers_per_subject: defaultdict[int, List[Dict[str, Any]]] = defaultdict(list)
+    for idx, teacher in enumerate(teachers):
+        for subject_id_int in teacher_subject_ids[idx]:
+            teachers_per_subject[subject_id_int].append(teacher)
 
     subjects_without_teachers = []
     for subject in subjects:
@@ -155,12 +252,42 @@ def validate_dataset_payload(
     # Curriculum hours validation (optional)
     subject_hours: Dict[int, int] = {}
     subject_hours_by_grade: Dict[int, Dict[int, int]] = {}
+    subject_hours_by_class: Dict[int, Dict[int, int]] = {}
     used_hour_keys: set[str] = set()
     has_hours_column = False
 
     for subject in subjects:
         subject_id = _coerce_int(subject.get("id"))
         if subject_id is None:
+            continue
+
+        hours_by_class = subject.get("weekly_hours_by_class")
+        if isinstance(hours_by_class, dict) and hours_by_class:
+            has_hours_column = True
+            parsed_class_hours: Dict[int, int] = {}
+            for class_key, value in hours_by_class.items():
+                class_id = _coerce_int(class_key)
+                if class_id is None:
+                    class_id = class_id_by_name.get(_normalize_class_name(class_key))
+                if class_id is None or class_id not in class_ids:
+                    errors.append(
+                        f"Subject '{subject.get('name', subject_id)}' has unknown class key {class_key}."
+                    )
+                    continue
+                hours = _coerce_int(value)
+                if hours is None:
+                    errors.append(
+                        f"Subject '{subject.get('name', subject_id)}' has empty curriculum hours for class {class_key}."
+                    )
+                    continue
+                if hours <= 0:
+                    errors.append(
+                        f"Subject '{subject.get('name', subject_id)}' has invalid hours {hours} for class {class_key}."
+                    )
+                    continue
+                parsed_class_hours[int(class_id)] = int(hours)
+            if parsed_class_hours:
+                subject_hours_by_class[subject_id] = parsed_class_hours
             continue
 
         hours_by_grade = subject.get("weekly_hours_by_grade")
@@ -216,8 +343,39 @@ def validate_dataset_payload(
             "Curriculum hours not provided; workload feasibility checks are approximate."
         )
 
+    # Ensure each required class-subject combination has a qualified teacher.
+    for subject in subjects:
+        subject_id = _coerce_int(subject.get("id"))
+        if subject_id is None:
+            continue
+
+        required_class_ids = _required_classes_for_subject(
+            subject_id,
+            class_ids=class_ids,
+            class_by_id=class_by_id,
+            subject_hours=subject_hours,
+            subject_hours_by_grade=subject_hours_by_grade,
+            subject_hours_by_class=subject_hours_by_class,
+        )
+
+        for class_id in sorted(required_class_ids):
+            class_name = class_by_id.get(class_id, {}).get("name", f"id {class_id}")
+            has_qualified = False
+            for idx, _teacher in enumerate(teachers):
+                if subject_id not in teacher_subject_ids[idx]:
+                    continue
+                allowed_classes = teacher_allowed_classes[idx]
+                if allowed_classes is not None and class_id not in allowed_classes:
+                    continue
+                has_qualified = True
+                break
+            if not has_qualified:
+                errors.append(
+                    f"No qualified teacher for subject '{subject.get('name', subject_id)}' in class '{class_name}'."
+                )
+
     # Workload feasibility (only strict if hours provided)
-    if (subject_hours or subject_hours_by_grade) and classes:
+    if (subject_hours or subject_hours_by_grade or subject_hours_by_class) and classes:
         total_slots = days_per_week * lessons_per_day
         classes_by_grade: Dict[int, int] = defaultdict(int)
         for cls in classes:
@@ -230,7 +388,18 @@ def validate_dataset_payload(
             subject_id = _coerce_int(subject.get("id"))
             if subject_id is None:
                 continue
-            if subject_id in subject_hours_by_grade:
+            required_class_ids = _required_classes_for_subject(
+                subject_id,
+                class_ids=class_ids,
+                class_by_id=class_by_id,
+                subject_hours=subject_hours,
+                subject_hours_by_grade=subject_hours_by_grade,
+                subject_hours_by_class=subject_hours_by_class,
+            )
+
+            if subject_id in subject_hours_by_class:
+                demand = sum(subject_hours_by_class[subject_id].values())
+            elif subject_id in subject_hours_by_grade:
                 demand = 0
                 for grade, hours in subject_hours_by_grade[subject_id].items():
                     demand += hours * classes_by_grade.get(int(grade), 0)
@@ -238,7 +407,16 @@ def validate_dataset_payload(
                 demand = subject_hours[subject_id] * len(classes)
             else:
                 continue
-            qualified_teachers = teachers_per_subject.get(subject_id, [])
+            qualified_teachers = []
+            for idx, teacher in enumerate(teachers):
+                if subject_id not in teacher_subject_ids[idx]:
+                    continue
+                allowed_classes = teacher_allowed_classes[idx]
+                if allowed_classes is not None and not (
+                    allowed_classes & required_class_ids
+                ):
+                    continue
+                qualified_teachers.append(teacher)
             if not qualified_teachers:
                 continue
             capacity = 0
