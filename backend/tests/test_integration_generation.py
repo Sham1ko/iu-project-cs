@@ -140,3 +140,49 @@ def test_generate_timetable_respects_contiguity_and_hour_targets(tmp_path: Path)
                     actual[key] += 1
 
     assert actual == expected
+
+
+def test_generate_timetable_prefers_single_pair_per_day(tmp_path: Path) -> None:
+    random.seed(7)
+    payload = {
+        "subjects": [
+            {"id": 1, "name": "Math", "weekly_hours_by_class": {1: 4}},
+            {"id": 2, "name": "English", "weekly_hours_by_class": {1: 2}},
+        ],
+        "teachers": [
+            {
+                "id": 1,
+                "name": "Alice",
+                "subjects": [1, 2],
+                "groups": [1],
+                "max_weekly_hours": 10,
+            }
+        ],
+        "classes": [{"id": 1, "name": "9A", "grade": 9}],
+    }
+    config = {
+        "population_size": 8,
+        "generations": 40,
+        "mutation_rate": 0.1,
+        "tournament_size": 3,
+        "output_dir": tmp_path,
+        "pdf_filename": "schedule_pairs_test.pdf",
+    }
+
+    result = generate_timetable(payload, config)
+    schedule = result["schedule"]
+
+    total_pairs = 0
+    for day, day_schedule in schedule.items():
+        day_pairs = 0
+        for lesson in range(1, 7):
+            first = day_schedule.get(str(lesson), {}).get("9A")
+            second = day_schedule.get(str(lesson + 1), {}).get("9A")
+            if first is None or second is None:
+                continue
+            if first["subject"] == second["subject"]:
+                day_pairs += 1
+        total_pairs += day_pairs
+        assert day_pairs <= 1
+
+    assert total_pairs >= 1

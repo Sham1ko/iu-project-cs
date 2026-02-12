@@ -117,6 +117,40 @@ def count_min_daily_lessons_deficit(
     return deficit
 
 
+def count_class_double_periods(
+    schedule: Dict,
+    classes: List[Dict[str, Any]],
+    days: List[str],
+    lessons_per_day: int,
+) -> tuple[int, int]:
+    """
+    Count class double periods (same subject in two adjacent lessons).
+    Returns:
+      - total_pairs: all found pairs
+      - extra_pairs: pairs above one-per-day limit per class/day
+    """
+    total_pairs = 0
+    extra_pairs = 0
+
+    for cls in classes:
+        class_id = cls["id"]
+        for day in days:
+            day_pairs = 0
+            for lesson in range(1, lessons_per_day):
+                first = schedule[day][lesson].get(class_id)
+                second = schedule[day][lesson + 1].get(class_id)
+                if first is None or second is None:
+                    continue
+                if first[1] == second[1]:
+                    day_pairs += 1
+
+            total_pairs += day_pairs
+            if day_pairs > 1:
+                extra_pairs += day_pairs - 1
+
+    return total_pairs, extra_pairs
+
+
 def calculate_schedule_fitness(
     schedule: Dict,
     *,
@@ -126,6 +160,8 @@ def calculate_schedule_fitness(
     classes: List[Dict[str, Any]],
     teachers_by_id: Dict[int, Dict[str, Any]],
     min_lessons_per_day: int = 2,
+    pair_bonus: float = 6.0,
+    extra_pair_penalty: float = 14.0,
 ) -> float:
     """
     Calculate fitness score for a schedule.
@@ -160,5 +196,14 @@ def calculate_schedule_fitness(
         min_lessons_per_day=min_lessons_per_day,
     )
     score -= min_daily_deficit * 80  # Heavy penalty per missing lesson toward minimum
+
+    # Pair preference:
+    # - bonus for having double periods
+    # - penalty if a class has more than one pair in the same day
+    total_pairs, extra_pairs = count_class_double_periods(
+        schedule, classes, days, lessons_per_day
+    )
+    score += total_pairs * pair_bonus
+    score -= extra_pairs * extra_pair_penalty
 
     return max(0, score)  # Ensure non-negative score
