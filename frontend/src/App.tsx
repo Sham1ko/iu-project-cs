@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import CreateDatasetPage from "./pages/CreateDatasetPage";
 import DatasetsPage from "./pages/DatasetsPage";
 import GeneratePage from "./pages/GeneratePage";
 import RunSchedulePage from "./pages/RunSchedulePage";
@@ -19,7 +18,6 @@ export default function App() {
           <Routes>
             <Route path="/" element={<GeneratePage />} />
             <Route path="/datasets" element={<DatasetsPage />} />
-            <Route path="/datasets/new" element={<CreateDatasetPage />} />
             <Route path="/runs" element={<RunsPage />} />
             <Route path="/runs/:runId/schedule" element={<RunSchedulePage />} />
           </Routes>
