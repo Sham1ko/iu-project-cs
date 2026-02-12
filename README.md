@@ -165,6 +165,8 @@ Run the benchmark script (performance testing):
   --out benchmarks/benchmark_results.csv
 ```
 
+See `docs/performance.md` for dataset sizes, methodology, and reporting templates.
+
 ## Docs
 
 - `docs/architecture.md`
@@ -174,3 +176,4 @@ Run the benchmark script (performance testing):
 - `docs/logic.md`
 - `docs/deployment.md`
 - `docs/CSV_GUIDE.md`
+- `docs/performance.md`
