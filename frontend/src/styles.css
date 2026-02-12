@@ -369,7 +369,7 @@ a {
 .table-header,
 .table-row {
   display: grid;
-  grid-template-columns: 80px 1fr 200px;
+  grid-template-columns: 80px 1fr 200px auto;
   gap: 16px;
   padding: 10px 12px;
   border-radius: 12px;

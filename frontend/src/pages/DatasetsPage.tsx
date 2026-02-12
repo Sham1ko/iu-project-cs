@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../api/client";
-import {
-  downloadDatasetExcel,
-  listDatasets,
-  uploadDatasetExcel,
-} from "../api/datasets";
+import { downloadDatasetExcel, listDatasets, uploadDatasetExcel } from "../api/datasets";
 import type { Dataset } from "../types/api";
 import { formatDateTime } from "../utils/format";
 
@@ -81,8 +77,7 @@ export default function DatasetsPage() {
       link.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "Failed to download dataset.";
+      const message = err instanceof ApiError ? err.message : "Failed to download dataset.";
       setDownloadError(message);
     } finally {
       setDownloadingId(null);
@@ -147,12 +142,33 @@ export default function DatasetsPage() {
                 <span>{formatDateTime(dataset.created_at)}</span>
                 <span>
                   <button
-                    className="secondary"
+                    className="inline-flex items-center gap-2 rounded-lg border-[1.5px] border-border bg-surface-strong px-4 py-2 font-medium text-sm text-text transition-all duration-200 hover:border-accent hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(15,118,110,0.15)] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
                     type="button"
                     onClick={() => handleDownload(dataset)}
                     disabled={downloadingId === dataset.id}
                   >
-                    {downloadingId === dataset.id ? "Downloading..." : "Download"}
+                    {downloadingId === dataset.id ? (
+                      "Downloading..."
+                    ) : (
+                      <>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 15V3" />
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <path d="m7 10 5 5 5-5" />
+                        </svg>
+                        Download
+                      </>
+                    )}
                   </button>
                 </span>
               </div>
