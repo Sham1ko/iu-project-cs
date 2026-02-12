@@ -4,6 +4,9 @@ __pycache__/
 # data
 data/
 
+# exclude dataset.xlsx from data folder
+!*/dataset.xlsx
+
 # virtual environments
 .venv/
 
