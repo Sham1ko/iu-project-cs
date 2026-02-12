@@ -7,12 +7,20 @@ import {
   getRunResult,
   getRunStatus,
 } from "../api/timetables";
+import { listDatasets } from "../api/datasets";
 import ScheduleTable from "../components/ScheduleTable";
 import StatusBadge from "../components/StatusBadge";
-import type { GenerationRun, ScheduleByDay, TimetableResultPayload } from "../types/api";
+import type { Dataset, GenerationRun, ScheduleByDay, TimetableResultPayload } from "../types/api";
 import { formatDateTime } from "../utils/format";
 import { collectClassNames, collectLessonsForClass, getScheduleDays } from "../utils/schedule";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const POLL_INTERVAL_MS = 1500;
 
@@ -31,6 +39,7 @@ export default function GeneratePage() {
     "inline-flex min-w-[110px] items-center justify-center rounded-[10px] border border-[rgba(185,28,28,0.35)] bg-[rgba(185,28,28,0.1)] px-3.5 py-2.5 text-sm font-medium text-[var(--error)] transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(185,28,28,0.4)] disabled:cursor-not-allowed disabled:opacity-60";
   const disabledButtonClass = `${secondaryButtonClass} pointer-events-none`;
 
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [datasetId, setDatasetId] = useState("");
   const [generations, setGenerations] = useState("");
   const [lastSubmittedGenerations, setLastSubmittedGenerations] = useState<number | null>(null);
@@ -41,6 +50,18 @@ export default function GeneratePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [pdfDeleted, setPdfDeleted] = useState(false);
+
+  useEffect(() => {
+    const loadDatasets = async () => {
+      try {
+        const data = await listDatasets();
+        setDatasets(data);
+      } catch (err) {
+        console.error("Failed to load datasets:", err);
+      }
+    };
+    loadDatasets();
+  }, []);
 
   const schedule = (result?.schedule ?? {}) as ScheduleByDay;
   const days = useMemo(() => getScheduleDays(schedule), [schedule]);
@@ -252,13 +273,19 @@ export default function GeneratePage() {
         <div className={panelTitleClass}>Run configuration</div>
         <div className="grid gap-4 items-end md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
           <label className="grid gap-2 text-sm">
-            <span>Dataset id (optional)</span>
-            <input
-              className="w-full rounded-xl border border-border bg-(--surface-strong) px-3 py-2 text-sm"
-              value={datasetId}
-              onChange={(event) => setDatasetId(event.target.value)}
-              placeholder="Leave empty to use latest dataset"
-            />
+            <span>Dataset (optional)</span>
+            <Select value={datasetId || undefined} onValueChange={(value) => setDatasetId(value || "")}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Latest dataset" />
+              </SelectTrigger>
+              <SelectContent>
+                {datasets.map((dataset) => (
+                  <SelectItem key={dataset.id} value={String(dataset.id)}>
+                    {dataset.id} - {dataset.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </label>
           <label className="grid gap-2 text-sm">
             <span>Generations (optional)</span>
@@ -277,7 +304,7 @@ export default function GeneratePage() {
           </button>
         </div>
         <div className={hintClass}>
-          Leave fields empty to use the latest dataset and default GA generations (200).
+          Select a dataset or use the latest one, and set generations (default: 200).
         </div>
       </div>
 
