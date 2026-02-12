@@ -93,8 +93,10 @@ export const collectLessonsForClass = (
     if (!daySchedule) {
       continue;
     }
-    for (const lesson of Object.keys(daySchedule)) {
-      lessons.add(lesson);
+    for (const [lesson, lessonSchedule] of Object.entries(daySchedule)) {
+      if (lessonSchedule?.[className]) {
+        lessons.add(lesson);
+      }
     }
   }
   return [...lessons].sort((a, b) => Number(a) - Number(b));

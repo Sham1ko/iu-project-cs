@@ -67,32 +67,54 @@ Example:
 | 1 | John Doe | 1,2 |
 | 2 | Jane Doe | Math |
 
-## Format B (matrix-based)
+## Format B (matrix-based, by class/group)
 
-This format is useful when you store hours by grade and list teachers per subject.
+This format is useful when you store weekly hours directly per class/group and
+teacher eligibility per group.
 
 Required sheets:
 
 - `hours`
-- One sheet per subject (sheet name must match the subject name)
+- `teachers`
 
 ### hours sheet
 
-Row 1 contains grade headers (e.g., `9`, `10`, `11`). Column A contains subject names.
-Each cell is the weekly hours for that subject and grade.
+Recommended columns:
+
+- `ID` (optional)
+- `Subject name` (required)
+- one column per class/group (e.g., `9A`, `9B`, `10A`, ...)
+
+Each class/group cell is the weekly hours for that subject and class.
 
 Example:
 
-|   | 9 | 10 | 11 |
-| --- | --- | --- | --- |
-| Algebra | 4 | 4 | 4 |
-| Geometry | 4 | 4 | 4 |
+| ID | Subject name | 9A | 9B | 10A |
+| --- | --- | --- | --- | --- |
+| 1 | Algebra | 4 | 4 | 4 |
+| 2 | Geometry | 4 | 4 | 4 |
 
-### subject sheets (e.g., `Algebra`)
+### teachers sheet
 
-Row 1 contains class names (e.g., `9A`, `9B`, `10A`). Column A contains teacher names.
-Teachers listed on the sheet are treated as qualified to teach that subject. The
-matrix cells are currently ignored by the loader.
+Required columns:
+
+- `ID` (optional)
+- `name` (required)
+- `subjects` (required)
+- `groups` (required for group-specific teachers)
+- `max_hours` or `max_weekly_hours` (optional)
+
+`subjects` supports:
+
+- comma/semicolon lists (`1,2`)
+- dot-separated numeric values (`1.2`) for locale-specific Excel input
+- subject names (if they match `Subject name`)
+
+`groups` is a comma/semicolon-separated list of class names (`9A, 10A, 11A`) or class ids.
+
+## Legacy matrix variant
+
+The older variant with `hours` by grade (`9`, `10`, `11`) + one sheet per subject is still supported.
 
 ## Configuration
 
