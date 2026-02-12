@@ -369,20 +369,48 @@ class GeneticScheduler:
                 slots += load - start + 1
         return slots
 
+    def _count_pairs_for_class_day(
+        self,
+        schedule: Dict[str, Dict[int, Dict[int, Optional[Tuple[int, int]]]]],
+        *,
+        day: str,
+        class_id: int,
+        up_to_lesson: int,
+    ) -> int:
+        pairs = 0
+        last_subject: int | None = None
+        for slot in range(1, up_to_lesson + 1):
+            assignment = schedule[day][slot].get(class_id)
+            subject_id = assignment[1] if assignment is not None else None
+            if subject_id is not None and last_subject == subject_id:
+                pairs += 1
+            last_subject = subject_id
+        return pairs
+
     def _slot_options_for_class(
         self,
         class_id: int,
         *,
+        day: str,
         day_index: int,
         lesson: int,
+        schedule: Dict[str, Dict[int, Dict[int, Optional[Tuple[int, int]]]]],
         remaining: Dict[int, Dict[int, int]],
         teacher_remaining: Dict[int, int],
         teacher_busy: set[int],
     ) -> List[Tuple[int, int]]:
-        options: List[Tuple[int, int]] = []
+        scored: List[Tuple[float, int, int]] = []
 
         subject_ids = list(remaining[class_id].keys())
         random.shuffle(subject_ids)
+
+        previous_assignment = (
+            schedule[day][lesson - 1].get(class_id) if lesson > 1 else None
+        )
+        previous_subject = previous_assignment[1] if previous_assignment is not None else None
+        existing_pairs_today = self._count_pairs_for_class_day(
+            schedule, day=day, class_id=class_id, up_to_lesson=max(lesson - 1, 0)
+        )
 
         for subject_id in subject_ids:
             if remaining[class_id][subject_id] <= 0:
@@ -401,15 +429,20 @@ class GeneticScheduler:
                     continue
                 if teacher_remaining.get(teacher_id, 0) <= 0:
                     continue
-                options.append((subject_id, teacher_id))
+                score = float(remaining[class_id][subject_id]) * 5.0
+                score += float(teacher_remaining.get(teacher_id, 0)) * 0.05
 
-        options.sort(
-            key=lambda item: (
-                -remaining[class_id][item[0]],
-                -teacher_remaining.get(item[1], 0),
-            )
-        )
-        return options
+                # Prefer creating exactly one pair per day.
+                if previous_subject == subject_id:
+                    if existing_pairs_today == 0:
+                        score += 100.0
+                    else:
+                        score -= 50.0
+
+                scored.append((score, subject_id, teacher_id))
+
+        scored.sort(key=lambda item: item[0], reverse=True)
+        return [(subject_id, teacher_id) for _, subject_id, teacher_id in scored]
 
     def _assign_single_timeslot(
         self,
@@ -435,8 +468,10 @@ class GeneticScheduler:
             for class_id in unassigned:
                 options = self._slot_options_for_class(
                     class_id,
+                    day=day,
                     day_index=day_index,
                     lesson=lesson,
+                    schedule=schedule,
                     remaining=remaining,
                     teacher_remaining=teacher_remaining,
                     teacher_busy=teacher_busy,
@@ -545,9 +580,6 @@ class GeneticScheduler:
                 best_schedule = candidate
                 best_fitness = fitness
                 best_generation = generation
-
-            # First feasible schedule is enough because hard constraints are enforced.
-            break
 
         if best_schedule is None:
             raise ValueError(
