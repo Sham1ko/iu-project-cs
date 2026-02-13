@@ -24,7 +24,7 @@ export const generateTimetable = async (
   }
   return request<GenerationResponse>("/timetables/generate", {
     method: "POST",
-    body,
+    body: JSON.stringify(body),
   });
 };
 

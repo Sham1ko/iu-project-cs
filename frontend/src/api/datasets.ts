@@ -9,7 +9,7 @@ export const listDatasets = async () => {
 export const createDataset = async (payload: DatasetCreate) => {
   return request<Dataset>("/datasets", {
     method: "POST",
-    body: payload,
+    body: JSON.stringify(payload),
   });
 };
 

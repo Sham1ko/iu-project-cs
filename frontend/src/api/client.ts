@@ -19,17 +19,21 @@ const buildHeaders = (options?: RequestInit) => {
   return headers;
 };
 
+type RequestOptions = Omit<RequestInit, "body"> & { body?: unknown };
+
 export async function request<T>(
   path: string,
-  options: RequestInit & { body?: unknown } = {},
+  options: RequestOptions = {},
 ): Promise<T> {
+  const { body, ...rest } = options;
+  const resolvedBody =
+    body === undefined || body === null || typeof body === "string"
+      ? body
+      : JSON.stringify(body);
   const response = await fetch(buildUrl(path), {
-    ...options,
-    headers: buildHeaders(options),
-    body:
-      options.body === undefined || typeof options.body === "string"
-        ? options.body
-        : JSON.stringify(options.body),
+    ...rest,
+    headers: buildHeaders(rest),
+    body: resolvedBody,
   });
 
   if (!response.ok) {
