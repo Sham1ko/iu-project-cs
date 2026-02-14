@@ -62,9 +62,9 @@ If you need reproducibility, pass a fixed `--seed` to the benchmark script.
 
 | School size | Classes | Avg runtime (min) | Avg generations | Runs | Config |
 | --- | --- | --- | --- | --- | --- |
-| Small | 6 | TBD | TBD | 5 | G=200, P=50, M=0.1, T=5 |
-| Medium | 12 | TBD | TBD | 5 | G=200, P=50, M=0.1, T=5 |
-| Large | 16 | TBD | TBD | 5 | G=200, P=50, M=0.1, T=5 |
+| Small | 6 | 0.029 | 93 | 5 | G=200, P=50, M=0.1, T=5 |
+| Medium | 12 | 0.900 | 90 | 5 | G=200, P=50, M=0.1, T=5 |
+| Large | 16 | 3.388 | 77 | 5 | G=200, P=50, M=0.1, T=5 |
 
 Notes:
 
@@ -80,8 +80,8 @@ the future, this table can be added with the same methodology:
 
 | Update type | Full regeneration (sec) | Incremental update (sec) | Reduction |
 | --- | --- | --- | --- |
-| Single teacher absence | TBD | TBD | TBD |
-| Two teacher absences | TBD | TBD | TBD |
-| Subject hour adjustment | TBD | TBD | TBD |
+| Single teacher absence | N/A (not implemented) | N/A | N/A |
+| Two teacher absences | N/A (not implemented) | N/A | N/A |
+| Subject hour adjustment | N/A (not implemented) | N/A | N/A |
 
 Reduction formula: `(1 - incremental / full) * 100%`.
